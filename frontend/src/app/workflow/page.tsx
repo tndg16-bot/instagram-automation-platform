@@ -609,7 +609,7 @@ function TestModal({ onClose, steps }: any) {
           )}
         </div>
 
-          <div className="flex justify-end space-x-3 pt-4 border-t border-gray-200 mt-4">
+        <div className="flex justify-end space-x-3 pt-4 border-t border-gray-200 mt-4">
             <button
               type="button"
               onClick={onClose}
@@ -623,12 +623,12 @@ function TestModal({ onClose, steps }: any) {
               className="px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-indigo-600 hover:bg-indigo-700 disabled:bg-gray-400 disabled:cursor-not-allowed"
             >
               {simulating ? 'Simulating...' : 'Start Simulation'}
-            </button>
+              </button>
+            </div>
           </div>
         </div>
+        </div>
       </div>
-      </div>
-    </div>
   );
 }
 
