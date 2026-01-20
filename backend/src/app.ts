@@ -11,6 +11,8 @@ import dmRoutes from './api/routes/dm';
 import commentRoutes from './api/routes/comment';
 import workflowRoutes from './api/routes/workflow';
 import aiRoutes from './api/routes/ai';
+import ordersRoutes from './api/routes/orders';
+import bookingsRoutes from './api/routes/bookings';
 
 dotenv.config();
 
@@ -63,6 +65,8 @@ app.use('/api/dm', dmRoutes);
 app.use('/api/comments', commentRoutes);
 app.use('/api/workflows', workflowRoutes);
 app.use('/api/ai', aiRoutes);
+app.use('/api/orders', ordersRoutes);
+app.use('/api/bookings', bookingsRoutes);
 
 // Health check
 app.get('/health', (req: Request, res: Response) => {
