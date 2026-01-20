@@ -1,0 +1,19 @@
+frontend:
+  - changed-files:
+      - frontend/**/*
+      - "frontend/**/*"
+
+backend:
+  - changed-files:
+      - backend/**/*
+      - "backend/**/*"
+
+infrastructure:
+  - changed-files:
+      - infrastructure/**/*
+      - "infrastructure/**/*"
+
+analytics:
+  - changed-files:
+      - analytics/**/*
+      - "analytics/**/*"
