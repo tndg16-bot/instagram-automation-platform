@@ -9,7 +9,6 @@ import authRoutes from './api/routes/auth';
 import dmRoutes from './api/routes/dm';
 import commentRoutes from './api/routes/comment';
 import workflowRoutes from './api/routes/workflow';
-import instagramRoutes from './api/routes/instagram';
 
 dotenv.config();
 
@@ -27,8 +26,8 @@ app.use(cors({
 
 // Rate limiting
 const limiter = rateLimit({
-  windowMs: 15 * 60 * 1000,
-  max: 100,
+  windowMs: 15 * 60 * 1000, // 15 minutes
+  max: 100, // 100 requests per IP
   message: 'Too many requests from this IP, please try again after 15 minutes',
 });
 app.use(limiter);
@@ -39,7 +38,6 @@ app.use(express.urlencoded({ extended: true }));
 
 // API routes
 app.use('/api/auth', authRoutes);
-app.use('/api/instagram', instagramRoutes);
 app.use('/api/dm', dmRoutes);
 app.use('/api/comments', commentRoutes);
 app.use('/api/workflows', workflowRoutes);
