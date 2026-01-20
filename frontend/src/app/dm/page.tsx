@@ -266,13 +266,12 @@ export default function DMPage() {
                         </div>
                       </div>
                     </div>
-                  </li>
+                    </li>
                   ))}
               </ul>
             </div>
           </div>
         </div>
-      </main>
 
       {showCreateModal && (
         <div className="fixed inset-0 bg-gray-500 bg-opacity-75 flex items-center justify-center z-50">
