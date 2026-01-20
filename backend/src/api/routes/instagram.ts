@@ -79,8 +79,9 @@ router.delete('/accounts/:id', async (req: Request, res: Response) => {
   try {
     const userId = await authenticateUser(req, res);
     const { id } = req.params;
+    const accountId = Array.isArray(id) ? id[0] : id;
 
-    const success = await deactivateInstagramAccount(id);
+    const success = await deactivateInstagramAccount(accountId);
 
     if (!success) {
       return res.status(404).json({ error: 'Account not found' });

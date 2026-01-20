@@ -1,9 +1,9 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useEffect, useState, Suspense } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 
-export default function InstagramCallbackPage() {
+function InstagramCallbackContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const [status, setStatus] = useState<'loading' | 'success' | 'error'>('loading');
@@ -11,7 +11,7 @@ export default function InstagramCallbackPage() {
 
   useEffect(() => {
     handleInstagramCallback();
-  }, []);
+  }, [searchParams]);
 
   const handleInstagramCallback = async () => {
     const code = searchParams.get('code');
@@ -124,5 +124,13 @@ export default function InstagramCallbackPage() {
         </div>
       )}
     </div>
+  );
+}
+
+export default function InstagramCallbackPage() {
+  return (
+    <Suspense fallback={<div>Loading...</div>}>
+      <InstagramCallbackContent />
+    </Suspense>
   );
 }

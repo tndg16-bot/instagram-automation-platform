@@ -53,23 +53,23 @@ export const exchangeCodeForToken = async (
   code: string
 ): Promise<InstagramOAuthTokenResponse> => {
   try {
-    const response = await axios.post(
-      'https://api.instagram.com/oauth/access_token',
-      {
-        client_id: INSTAGRAM_APP_ID,
-        client_secret: INSTAGRAM_APP_SECRET,
-        grant_type: 'authorization_code',
-        redirect_uri: INSTAGRAM_REDIRECT_URI,
-        code,
-      },
-      {
-        headers: {
-          'Content-Type': 'application/x-www-form-urlencoded',
-        },
-      }
-    );
+     const response = await axios.post(
+       'https://api.instagram.com/oauth/access_token',
+       {
+         client_id: INSTAGRAM_APP_ID,
+         client_secret: INSTAGRAM_APP_SECRET,
+         grant_type: 'authorization_code',
+         redirect_uri: INSTAGRAM_REDIRECT_URI,
+         code,
+       },
+       {
+         headers: {
+           'Content-Type': 'application/x-www-form-urlencoded',
+         },
+       }
+     );
 
-    return response.data;
+    return response.data as InstagramOAuthTokenResponse;
   } catch (error) {
     console.error('Error exchanging code for token:', error);
     throw new Error('Failed to exchange authorization code for access token');
@@ -87,7 +87,7 @@ export const getLongLivedToken = async (
       `https://graph.instagram.com/access_token?grant_type=ig_exchange_token&client_secret=${INSTAGRAM_APP_SECRET}&access_token=${shortLivedToken}`
     );
 
-    return response.data;
+    return response.data as InstagramOAuthTokenResponse;
   } catch (error) {
     console.error('Error getting long-lived token:', error);
     throw new Error('Failed to get long-lived access token');
@@ -105,7 +105,7 @@ export const getInstagramUserProfile = async (
       `https://graph.instagram.com/me?fields=id,username,account_type,media_count,followers_count,follows_count,biography,profile_picture_url&access_token=${accessToken}`
     );
 
-    return response.data;
+    return response.data as InstagramUserProfile;
   } catch (error) {
     console.error('Error getting Instagram user profile:', error);
     throw new Error('Failed to get Instagram user profile');
@@ -123,7 +123,7 @@ export const refreshAccessToken = async (
       `https://graph.instagram.com/refresh_access_token?grant_type=ig_refresh_token&access_token=${accessToken}`
     );
 
-    return response.data;
+    return response.data as InstagramOAuthTokenResponse;
   } catch (error) {
     console.error('Error refreshing access token:', error);
     throw new Error('Failed to refresh access token');

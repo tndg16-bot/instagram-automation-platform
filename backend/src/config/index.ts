@@ -1,8 +1,8 @@
-import dotenv from 'dotenv';
+import * as dotenv from 'dotenv';
 
 dotenv.config();
 
-interface Config {
+export interface Config {
   port: number;
   nodeEnv: string;
   frontendUrl: string;

@@ -1,0 +1,8 @@
+{
+  "success": false,
+  "data": {
+    "error": "Not Found"
+  },
+  "error": "API returned failure",
+  "status": 404
+}
