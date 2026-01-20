@@ -1,5 +1,22 @@
-import axios, { AxiosInstance, AxiosError } from 'axios';
+import axios, { AxiosInstance, AxiosError, InternalAxiosRequestConfig } from 'axios';
 import config from '../config';
+import {
+  InstagramUser,
+  InstagramMedia,
+  InstagramComment,
+  InstagramDirectMessage,
+  PaginatedResponse
+} from '../types/instagram';
+
+interface InstagramAPIError {
+  error: {
+    type: string;
+    message: string;
+    code: number;
+    error_subcode?: number;
+    fbtrace_id?: string;
+  };
+}
 
 interface InstagramConfig {
   accessToken: string;

@@ -33,7 +33,3 @@ coverage/
 
 # Docker
 .dockerignore
-
-# Sisyphus
-.sisyphus/
-*.local.md
