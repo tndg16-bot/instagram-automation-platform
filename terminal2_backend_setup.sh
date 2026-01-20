@@ -673,7 +673,7 @@ volumes:
   redis_data:
 EOF
 
-cat > backend/Dockerfile << 'EOF'
+cat > "$BACKEND_DIR/Dockerfile" << 'EOF'
 FROM node:18-alpine
 
 WORKDIR /app
