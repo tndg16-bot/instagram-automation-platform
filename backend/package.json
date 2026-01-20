@@ -1,0 +1,19 @@
+{
+  "name": "instagram-automation-backend",
+  "version": "1.0.0",
+  "description": "Backend API for Instagram Automation Platform",
+  "main": "dist/server.js",
+  "scripts": {
+    "dev": "nodemon src/server.ts",
+    "build": "tsc",
+    "start": "node dist/server.js",
+    "test": "jest",
+    "test:watch": "jest --watch",
+    "test:coverage": "jest --coverage",
+    "lint": "eslint src/**/*.ts",
+    "lint:fix": "eslint src/**/*.ts --fix"
+  },
+  "keywords": ["instagram", "automation", "api"],
+  "author": "InstaFlow AI Team",
+  "license": "MIT"
+}
