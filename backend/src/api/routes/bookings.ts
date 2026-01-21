@@ -273,43 +273,4 @@ router.delete('/:id', (req: Request, res: Response) => {
   }
 });
 
-/**
- * PUT /:id/cancel - Cancel booking
- */
-router.put('/:id/cancel', (req: Request, res: Response) => {
-  try {
-    const id = req.params.id as string;
-
-    const booking = bookings[id];
-
-    if (!booking) {
-      return res.status(404).json({
-        error: 'Booking not found',
-      });
-    }
-
-    booking.status = 'cancelled';
-    booking.updatedAt = new Date();
-
-    res.json({
-      success: true,
-      message: 'Booking cancelled successfully',
-      booking: {
-        id: booking.id,
-        userId: booking.userId,
-        serviceId: booking.serviceId,
-        scheduledAt: booking.scheduledAt,
-        status: booking.status,
-        createdAt: booking.createdAt,
-        updatedAt: booking.updatedAt,
-      },
-    });
-  } catch (error) {
-    console.error('Error cancelling booking:', error);
-    res.status(500).json({
-      error: 'Internal server error',
-    });
-  }
-});
-
 export default router;

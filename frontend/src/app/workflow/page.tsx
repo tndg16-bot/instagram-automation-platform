@@ -22,18 +22,6 @@ export default function WorkflowBuilderPage() {
   const [showTestModal, setShowTestModal] = useState(false);
   const [loading, setLoading] = useState(true);
 
-  useEffect(() => {
-    const urlParams = new URLSearchParams(window.location.search);
-    const campaignIdParam = urlParams.get('campaign_id');
-
-    if (campaignIdParam) {
-      setCampaignId(campaignIdParam);
-      fetchSteps(campaignIdParam);
-    }
-
-    setLoading(false);
-  }, []);
-
   const fetchSteps = async (id: string) => {
     try {
       const token = localStorage.getItem('accessToken');
@@ -48,6 +36,18 @@ export default function WorkflowBuilderPage() {
       console.error('Error fetching steps:', error);
     }
   };
+
+  useEffect(() => {
+    const urlParams = new URLSearchParams(window.location.search);
+    const campaignIdParam = urlParams.get('campaign_id');
+
+    if (campaignIdParam) {
+      setCampaignId(campaignIdParam);
+      fetchSteps(campaignIdParam);
+    }
+
+    setLoading(false);
+  }, [campaignIdParam]);
 
   const addStep = async (newStepData: {
     step_order: number;
@@ -587,12 +587,13 @@ function TestModal({ onClose, steps }: any) {
                 ))}
               </ul>
             </div>
+          </div>
 
           {results.length > 0 && (
             <div className="mt-4">
               <h4 className="font-medium text-gray-900 mb-2">Simulation Results</h4>
               <div className="space-y-2">
-                {results.map((result: any, index: number) => (
+                {results.map((result, index) => (
                   <div key={index} className="flex items-center text-sm">
                     <span className={`mr-2 ${
                       result.status === 'success'
@@ -623,8 +624,7 @@ function TestModal({ onClose, steps }: any) {
               className="px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-indigo-600 hover:bg-indigo-700 disabled:bg-gray-400 disabled:cursor-not-allowed"
             >
               {simulating ? 'Simulating...' : 'Start Simulation'}
-              </button>
-            </div>
+            </button>
           </div>
         </div>
       </div>
