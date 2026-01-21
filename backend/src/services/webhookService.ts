@@ -155,14 +155,14 @@ class WebhookService {
 
     // Enqueue webhook deliveries (using webhookDeliveryEngine)
     // For now, we'll call deliverWebhook directly (will be enhanced with queue later)
-    const { webhookDeliveryEngine } = await import('./webhookDeliveryEngine');
+    const webhookDeliveryEngine = await import('./webhookDeliveryEngine');
 
     for (const webhook of webhooks) {
       // Create delivery log
       const logId = await this.createWebhookLog(webhook.id!, eventType, payload);
 
       // Deliver webhook
-      webhookDeliveryEngine.deliverWebhook(webhook, {
+      webhookDeliveryEngine.default.deliverWebhook(webhook, {
         id: uuidv4(),
         type: eventType,
         timestamp: Date.now(),

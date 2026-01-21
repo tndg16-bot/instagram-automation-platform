@@ -5,7 +5,7 @@ const MAX_RETRIES = 5;
 const WEBHOOK_TIMEOUT_MS = 30000; // 30秒
 
 interface Webhook {
-  id: string;
+  id?: string;
   url: string;
   secret: string;
 }

@@ -1,6 +1,7 @@
-import { Router } from 'express';
+import { Router, Response } from 'express';
 import { authenticate, AuthRequest } from '../../utils/auth';
 import CommentService from '../../services/commentService';
+import InstagramGraphClient from '../../services/instagramClient';
 
 const router = Router();
 const commentService = new CommentService();
@@ -84,7 +85,7 @@ router.post('/fetch', async (req: AuthRequest, res: Response) => {
 router.post('/:id/reply', async (req: AuthRequest, res: Response) => {
   try {
     const userId = req.user!.id;
-    const commentId = req.params.id;
+    const commentId = req.params.id as string;
     const { message, template_id } = req.body;
 
     if (!message) {
@@ -95,15 +96,15 @@ router.post('/:id/reply', async (req: AuthRequest, res: Response) => {
     const accessToken = 'TEMP_ACCESS_TOKEN'; // Placeholder
 
     const client = new InstagramGraphClient(accessToken);
-    const result = await client.replyToComment(commentId, message);
+    await client.replyToComment(commentId, message);
 
-    // Mark as replied
-    await commentService.markCommentAsReplied(commentId, result.id);
+    // Mark as replied (use commentId as replyMessageId for tracking)
+    await commentService.markCommentAsReplied(commentId, commentId);
 
     return res.json({
       success: true,
       data: {
-        reply_id: result.id,
+        reply_id: commentId,
         message: 'Reply sent successfully',
       },
     });
@@ -120,7 +121,7 @@ router.post('/:id/reply', async (req: AuthRequest, res: Response) => {
 router.put('/:id', async (req: AuthRequest, res: Response) => {
   try {
     const userId = req.user!.id;
-    const commentId = req.params.id;
+    const commentId = req.params.id as string;
     const { status } = req.body;
 
     if (!status || !['pending', 'replied', 'ignored'].includes(status)) {
@@ -129,7 +130,7 @@ router.put('/:id', async (req: AuthRequest, res: Response) => {
 
     if (status === 'replied') {
       const { reply_message_id } = req.body;
-      await commentService.markCommentAsReplied(commentId, reply_message_id);
+      await commentService.markCommentAsReplied(commentId, reply_message_id as string);
     } else if (status === 'ignored') {
       await commentService.markCommentAsIgnored(commentId);
     }
@@ -186,7 +187,7 @@ router.get('/templates', async (req: AuthRequest, res: Response) => {
 router.put('/templates/:id', async (req: AuthRequest, res: Response) => {
   try {
     const userId = req.user!.id;
-    const templateId = req.params.id;
+    const templateId = req.params.id as string;
     const { template_name, content, is_active } = req.body;
 
     const template = await commentService.getReplyTemplate(userId, templateId);
@@ -211,7 +212,7 @@ router.put('/templates/:id', async (req: AuthRequest, res: Response) => {
 router.delete('/templates/:id', async (req: AuthRequest, res: Response) => {
   try {
     const userId = req.user!.id;
-    const templateId = req.params.id;
+    const templateId = req.params.id as string;
 
     const template = await commentService.getReplyTemplate(userId, templateId);
 
@@ -273,7 +274,7 @@ router.get('/keywords', async (req: AuthRequest, res: Response) => {
 router.put('/keywords/:id', async (req: AuthRequest, res: Response) => {
   try {
     const userId = req.user!.id;
-    const ruleId = req.params.id;
+    const ruleId = req.params.id as string;
     const { keyword, is_active } = req.body;
 
     // TODO: Verify ownership
@@ -293,7 +294,7 @@ router.put('/keywords/:id', async (req: AuthRequest, res: Response) => {
  */
 router.delete('/keywords/:id', async (req: AuthRequest, res: Response) => {
   try {
-    const ruleId = req.params.id;
+    const ruleId = req.params.id as string;
 
     // TODO: Verify ownership
 
@@ -301,7 +302,7 @@ router.delete('/keywords/:id', async (req: AuthRequest, res: Response) => {
 
     return res.json({ success: true, message: 'Keyword rule deleted' });
   } catch (error) {
-    console.error('Error deleting keyword rule:', error;
+    console.error('Error deleting keyword rule:', error);
     return res.status(500).json({ error: 'Failed to delete keyword rule' });
   }
 });
