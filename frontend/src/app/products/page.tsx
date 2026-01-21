@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState } from 'react';
+import React from 'react';
 import { BookOpen, Video, ShoppingCart, Check, Star } from 'lucide-react';
 
 interface Product {
@@ -118,63 +118,33 @@ const products: Product[] = [
 ];
 
 export default function ProductsPage() {
-  const [selectedProduct, setSelectedProduct] = useState<Product | null>(null);
-  const [showCheckoutModal, setShowCheckoutModal] = useState(false);
+  const [shouldRedirect, setShouldRedirect] = React.useState(false);
+  const [redirectProduct, setRedirectProduct] = React.useState<Product | null>(null);
+
+  React.useEffect(() => {
+    if (shouldRedirect && redirectProduct) {
+      const price = parseInt(redirectProduct.price.replace(/[¥,]/g, ''), 10);
+      const timestamp = Date.now();
+      const cartItem = {
+        id: `cart-${timestamp}-${redirectProduct.id}`,
+        productId: redirectProduct.id,
+        name: redirectProduct.name,
+        price: price,
+        priceDisplay: redirectProduct.price,
+        quantity: 1
+      };
+
+      const existingCart = JSON.parse(localStorage.getItem('cart') || '[]');
+      const updatedCart = [...existingCart, cartItem];
+      localStorage.setItem('cart', JSON.stringify(updatedCart));
+
+      window.location.href = '/checkout';
+    }
+  }, [shouldRedirect, redirectProduct]);
 
   const handleBuyProduct = (product: Product) => {
-    setSelectedProduct(product);
-    setShowCheckoutModal(true);
-  };
-
-  const handleConfirmPurchase = async (e: React.FormEvent) => {
-    e.preventDefault();
-    const form = e.target as HTMLFormElement;
-    const formData = new FormData(form);
-
-    const name = formData.get('name') as string;
-    const email = formData.get('email') as string;
-
-    if (!selectedProduct) return;
-
-    try {
-      const token = localStorage.getItem('accessToken');
-
-      // 価格文字列から数値を抽出
-      const price = parseInt(selectedProduct.price.replace(/[¥,]/g, ''), 10);
-
-      // APIリクエスト
-      const response = await fetch('http://localhost:8000/api/orders', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          ...(token && { 'Authorization': `Bearer ${token}` }),
-        },
-        body: JSON.stringify({
-          userId: token ? 'current-user' : `guest-${Date.now()}`,
-          amount: price,
-          currency: 'JPY',
-          items: [{
-            id: selectedProduct.id,
-            productId: selectedProduct.id,
-            quantity: 1,
-            price: price,
-            name: selectedProduct.name,
-          }],
-        }),
-      });
-
-      const result = await response.json();
-
-      if (result.success) {
-        setShowCheckoutModal(false);
-        alert('ご購入ありがとうございます！\n\n注文ID: ' + (result.order?.id || 'N/A') + '\n\n購入内容をメールでお送りしました。');
-      } else {
-        throw new Error(result.error || '購入処理に失敗しました');
-      }
-    } catch (error) {
-      console.error('Purchase failed:', error);
-      alert('購入処理に失敗しました。もう一度お試しください。\n\nエラー: ' + (error instanceof Error ? error.message : 'Unknown error'));
-    }
+    setRedirectProduct(product);
+    setShouldRedirect(true);
   };
 
   return (
@@ -344,59 +314,6 @@ export default function ProductsPage() {
           </div>
         </div>
       </main>
-
-      {showCheckoutModal && selectedProduct && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
-          <div className="bg-white rounded-lg shadow-xl max-w-md w-full p-6">
-            <div className="flex justify-between items-center mb-6">
-              <h3 className="text-xl font-bold text-gray-900">購入確認</h3>
-              <button onClick={() => setShowCheckoutModal(false)} className="text-gray-400 hover:text-gray-600">✕</button>
-            </div>
-
-            <div className="bg-gray-50 p-4 rounded-lg mb-6">
-              <h4 className="font-semibold text-gray-900 mb-1">{selectedProduct.name}</h4>
-              <div className="flex items-center justify-between mt-2">
-                <span className="text-sm text-gray-600">合計金額</span>
-                <span className="text-2xl font-bold text-indigo-600">{selectedProduct.price}</span>
-              </div>
-            </div>
-
-            <form onSubmit={handleConfirmPurchase}>
-              <div className="space-y-4">
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">お名前 *</label>
-                  <input
-                    type="text"
-                    name="name"
-                    required
-                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500"
-                    placeholder="山田 太郎"
-                  />
-                </div>
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">メールアドレス *</label>
-                  <input
-                    type="email"
-                    name="email"
-                    required
-                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500"
-                    placeholder="example@email.com"
-                  />
-                </div>
-              </div>
-
-              <button type="submit" className="w-full mt-6 bg-indigo-600 text-white py-3 rounded-lg font-semibold hover:bg-indigo-700 transition-colors">
-                購入を確定する
-              </button>
-            </form>
-
-            <div className="mt-4 text-center">
-              <p className="text-xs text-gray-500">※ 決済はクレジットカードで処理されます</p>
-              <p className="text-xs text-gray-500 mt-1">※ 購入内容はメールにてお送りいたします</p>
-            </div>
-          </div>
-        </div>
-      )}
     </div>
   );
 }

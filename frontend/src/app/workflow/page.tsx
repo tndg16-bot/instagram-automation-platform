@@ -19,6 +19,7 @@ export default function WorkflowBuilderPage() {
   const [campaignId, setCampaignId] = useState('');
   const [selectedStep, setSelectedStep] = useState<Step | null>(null);
   const [showAddModal, setShowAddModal] = useState(false);
+  const [showTestModal, setShowTestModal] = useState(false);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -31,7 +32,7 @@ export default function WorkflowBuilderPage() {
     }
 
     setLoading(false);
-  }, [campaignIdParam]);
+  }, []);
 
   const fetchSteps = async (id: string) => {
     try {
@@ -570,7 +571,7 @@ function TestModal({ onClose, steps }: any) {
               <br /><br />
               <strong>Preview:</strong>
               <ul className="mt-2 space-y-2">
-                {steps.map((step) => (
+                {steps.map((step: Step) => (
                   <li key={step.id} className="flex items-start">
                     <span className="bg-indigo-100 text-indigo-800 rounded-full w-6 h-6 flex items-center justify-center font-bold mr-2 mt-1">
                       {step.step_order + 1}
@@ -586,13 +587,12 @@ function TestModal({ onClose, steps }: any) {
                 ))}
               </ul>
             </div>
-          </div>
 
           {results.length > 0 && (
             <div className="mt-4">
               <h4 className="font-medium text-gray-900 mb-2">Simulation Results</h4>
               <div className="space-y-2">
-                {results.map((result, index) => (
+                {results.map((result: any, index: number) => (
                   <div key={index} className="flex items-center text-sm">
                     <span className={`mr-2 ${
                       result.status === 'success'
@@ -626,7 +626,6 @@ function TestModal({ onClose, steps }: any) {
               </button>
             </div>
           </div>
-        </div>
         </div>
       </div>
   );

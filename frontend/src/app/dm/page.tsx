@@ -240,140 +240,140 @@ export default function DMPage() {
                               </div>
                             </div>
                           </div>
-                        </div>
-                        <div className="ml-5 flex-shrink-0 flex space-x-2">
-                          {campaign.status === 'draft' || campaign.status === 'scheduled' ? (
+                          <div className="ml-5 flex-shrink-0 flex space-x-2">
+                            {campaign.status === 'draft' || campaign.status === 'scheduled' ? (
+                              <button
+                                onClick={() => handleSendCampaign(campaign.id)}
+                                className="inline-flex items-center px-3 py-1 border border-transparent rounded-md text-sm font-medium text-white bg-green-600 hover:bg-green-700"
+                              >
+                                {campaign.campaign_type === 'sequence' ? 'Edit Steps' : 'Send'}
+                              </button>
+                            ) : (
+                              <button
+                                disabled
+                                className="inline-flex items-center px-3 py-1 border border-transparent rounded-md text-sm font-medium text-gray-400 bg-gray-100 cursor-not-allowed"
+                              >
+                                {campaign.status === 'sending' ? 'Sending...' : 'Sent'}
+                              </button>
+                            )}
                             <button
-                              onClick={() => handleSendCampaign(campaign.id)}
-                              className="inline-flex items-center px-3 py-1 border border-transparent rounded-md text-sm font-medium text-white bg-green-600 hover:bg-green-700"
+                              onClick={() => handleDeleteCampaign(campaign.id)}
+                              className="inline-flex items-center px-3 py-1 border border-gray-300 rounded-md text-sm font-medium text-gray-700 bg-white hover:bg-gray-50"
                             >
-                              {campaign.campaign_type === 'sequence' ? 'Edit Steps' : 'Send'}
+                              Delete
                             </button>
-                          ) : (
-                            <button
-                              disabled
-                              className="inline-flex items-center px-3 py-1 border border-transparent rounded-md text-sm font-medium text-gray-400 bg-gray-100 cursor-not-allowed"
-                            >
-                              {campaign.status === 'sending' ? 'Sending...' : 'Sent'}
-                            </button>
-                          )}
-                          <button
-                            onClick={() => handleDeleteCampaign(campaign.id)}
-                            className="inline-flex items-center px-3 py-1 border border-gray-300 rounded-md text-sm font-medium text-gray-700 bg-white hover:bg-gray-50"
-                          >
-                            Delete
-                          </button>
+                          </div>
                         </div>
                       </div>
-                    </div>
                     </li>
-                  ))}
+                  ))
+                )}
               </ul>
             </div>
           </div>
         </div>
 
-      {showCreateModal && (
-        <div className="fixed inset-0 bg-gray-500 bg-opacity-75 flex items-center justify-center z-50">
-          <div className="bg-white rounded-lg shadow-xl max-w-lg w-full mx-4">
-            <div className="px-4 py-5 sm:p-6">
-              <h3 className="text-lg leading-6 font-medium text-gray-900 mb-4">
-                Create New Campaign
-              </h3>
-              <form onSubmit={handleCreateCampaign} className="space-y-4">
-                <div>
-                  <label htmlFor="name" className="block text-sm font-medium text-gray-700">
-                    Campaign Name
-                  </label>
-                  <input
-                    type="text"
-                    id="name"
-                    required
-                    value={newCampaign.name}
-                    onChange={(e) => setNewCampaign({ ...newCampaign, name: e.target.value })}
-                    className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
-                  />
-                </div>
-
-                <div>
-                  <label htmlFor="message" className="block text-sm font-medium text-gray-700">
-                    Message
-                  </label>
-                  <textarea
-                    id="message"
-                    required
-                    rows={4}
-                    value={newCampaign.message}
-                    onChange={(e) => setNewCampaign({ ...newCampaign, message: e.target.value })}
-                    className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
-                  />
-                </div>
-
-                <div>
-                  <label className="block text-sm font-medium text-gray-700">
-                    Campaign Type
-                  </label>
-                  <div className="mt-2 flex items-center space-x-4">
-                    <label className="inline-flex items-center">
-                      <input
-                        type="radio"
-                        name="campaignType"
-                        value="simple"
-                        checked={newCampaign.campaign_type === 'simple'}
-                        onChange={(e) => setNewCampaign({ ...newCampaign, campaign_type: e.target.value as 'simple' | 'sequence' })}
-                        className="mr-2"
-                      />
-                      <span className="text-sm text-gray-700">Simple Broadcast</span>
+        {showCreateModal && (
+          <div className="fixed inset-0 bg-gray-500 bg-opacity-75 flex items-center justify-center z-50">
+            <div className="bg-white rounded-lg shadow-xl max-w-lg w-full mx-4">
+              <div className="px-4 py-5 sm:p-6">
+                <h3 className="text-lg leading-6 font-medium text-gray-900 mb-4">
+                  Create New Campaign
+                </h3>
+                <form onSubmit={handleCreateCampaign} className="space-y-4">
+                  <div>
+                    <label htmlFor="name" className="block text-sm font-medium text-gray-700">
+                      Campaign Name
                     </label>
-                    <label className="inline-flex items-center">
-                      <input
-                        type="radio"
-                        name="campaignType"
-                        value="sequence"
-                        checked={newCampaign.campaign_type === 'sequence'}
-                        onChange={(e) => setNewCampaign({ ...newCampaign, campaign_type: e.target.value as 'simple' | 'sequence' })}
-                        className="mr-2"
-                      />
-                      <span className="text-sm text-gray-700">Step Sequence</span>
-                    </label>
+                    <input
+                      type="text"
+                      id="name"
+                      required
+                      value={newCampaign.name}
+                      onChange={(e) => setNewCampaign({ ...newCampaign, name: e.target.value })}
+                      className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
+                    />
                   </div>
-                </div>
 
-                <div>
-                  <label htmlFor="account" className="block text-sm font-medium text-gray-700">
-                    Instagram Account
-                  </label>
-                  <select
-                    id="account"
-                    required
-                    value={newCampaign.instagram_account_id}
-                    onChange={(e) => setNewCampaign({ ...newCampaign, instagram_account_id: e.target.value })}
-                    className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
-                  >
-                    <option value="">Select account...</option>
-                  </select>
-                </div>
+                  <div>
+                    <label htmlFor="message" className="block text-sm font-medium text-gray-700">
+                      Message
+                    </label>
+                    <textarea
+                      id="message"
+                      required
+                      rows={4}
+                      value={newCampaign.message}
+                      onChange={(e) => setNewCampaign({ ...newCampaign, message: e.target.value })}
+                      className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
+                    />
+                  </div>
 
-                <div className="flex justify-end space-x-3 pt-4">
-                  <button
-                    type="button"
-                    onClick={() => setShowCreateModal(false)}
-                    className="px-4 py-2 border border-gray-300 rounded-md text-sm font-medium text-gray-700 bg-white hover:bg-gray-50"
-                  >
-                    Cancel
-                  </button>
-                  <button
-                    type="submit"
-                    className="px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-indigo-600 hover:bg-indigo-700"
-                  >
-                    Create Campaign
-                  </button>
-                </div>
-              </form>
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700">
+                      Campaign Type
+                    </label>
+                    <div className="mt-2 flex items-center space-x-4">
+                      <label className="inline-flex items-center">
+                        <input
+                          type="radio"
+                          name="campaignType"
+                          value="simple"
+                          checked={newCampaign.campaign_type === 'simple'}
+                          onChange={(e) => setNewCampaign({ ...newCampaign, campaign_type: e.target.value as 'simple' | 'sequence' })}
+                          className="mr-2"
+                        />
+                        <span className="text-sm text-gray-700">Simple Broadcast</span>
+                      </label>
+                      <label className="inline-flex items-center">
+                        <input
+                          type="radio"
+                          name="campaignType"
+                          value="sequence"
+                          checked={newCampaign.campaign_type === 'sequence'}
+                          onChange={(e) => setNewCampaign({ ...newCampaign, campaign_type: e.target.value as 'simple' | 'sequence' })}
+                          className="mr-2"
+                        />
+                        <span className="text-sm text-gray-700">Step Sequence</span>
+                      </label>
+                    </div>
+                  </div>
+
+                  <div>
+                    <label htmlFor="account" className="block text-sm font-medium text-gray-700">
+                      Instagram Account
+                    </label>
+                    <select
+                      id="account"
+                      required
+                      value={newCampaign.instagram_account_id}
+                      onChange={(e) => setNewCampaign({ ...newCampaign, instagram_account_id: e.target.value })}
+                      className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
+                    >
+                      <option value="">Select account...</option>
+                    </select>
+                  </div>
+
+                  <div className="flex justify-end space-x-3 pt-4">
+                    <button
+                      type="button"
+                      onClick={() => setShowCreateModal(false)}
+                      className="px-4 py-2 border border-gray-300 rounded-md text-sm font-medium text-gray-700 bg-white hover:bg-gray-50"
+                    >
+                      Cancel
+                    </button>
+                    <button
+                      type="submit"
+                      className="px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-indigo-600 hover:bg-indigo-700"
+                    >
+                      Create Campaign
+                    </button>
+                  </div>
+                </form>
+              </div>
             </div>
           </div>
-        </div>
-      )}
+        )}
       </main>
     </div>
   );

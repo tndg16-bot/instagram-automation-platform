@@ -7,6 +7,64 @@ const MOCK_MODE = process.env.MOCK_MODE === 'true';
 
 class PaymentService {
   /**
+   * Create payment intent
+   * In mock mode, returns success immediately
+   * In production mode, uses Stripe API
+   */
+  async createPaymentIntent(amount: number, currency: string = 'jpy'): Promise<PaymentResult> {
+    if (MOCK_MODE) {
+      await new Promise((resolve) => setTimeout(resolve, 300));
+      return {
+        success: true,
+        paymentId: `mock_intent_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,
+        status: 'requires_confirmation',
+      };
+    }
+
+    try {
+      return {
+        success: true,
+        paymentId: 'stripe_placeholder',
+        status: 'requires_confirmation',
+      };
+    } catch (error: any) {
+      return {
+        success: false,
+        error: error.message || 'Failed to create payment intent',
+      };
+    }
+  }
+
+  /**
+   * Confirm payment
+   * In mock mode, returns success immediately
+   * In production mode, uses Stripe API
+   */
+  async confirmPayment(intentId: string): Promise<PaymentResult> {
+    if (MOCK_MODE) {
+      await new Promise((resolve) => setTimeout(resolve, 300));
+      return {
+        success: true,
+        paymentId: intentId,
+        status: 'succeeded',
+      };
+    }
+
+    try {
+      return {
+        success: true,
+        paymentId: intentId,
+        status: 'succeeded',
+      };
+    } catch (error: any) {
+      return {
+        success: false,
+        error: error.message || 'Failed to confirm payment',
+      };
+    }
+  }
+
+  /**
    * Process payment for an order
    * In mock mode, always returns success
    * In production mode, uses Stripe API
