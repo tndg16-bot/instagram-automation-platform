@@ -208,7 +208,7 @@ export default function DMPage() {
                       </p>
                     </div>
                   </li>
-                ) : (
+                  ) : (
                   campaigns.map((campaign) => (
                     <li key={campaign.id}>
                       <div className="px-4 py-4 sm:px-6">
@@ -240,38 +240,38 @@ export default function DMPage() {
                               </div>
                             </div>
                           </div>
-                        </div>
-                        <div className="ml-5 flex-shrink-0 flex space-x-2">
-                          {campaign.status === 'draft' || campaign.status === 'scheduled' ? (
+                          <div className="ml-5 flex-shrink-0 flex space-x-2">
+                            {campaign.status === 'draft' || campaign.status === 'scheduled' ? (
+                              <button
+                                onClick={() => handleSendCampaign(campaign.id)}
+                                className="inline-flex items-center px-3 py-1 border border-transparent rounded-md text-sm font-medium text-white bg-green-600 hover:bg-green-700"
+                              >
+                                {campaign.campaign_type === 'sequence' ? 'Edit Steps' : 'Send'}
+                              </button>
+                            ) : (
+                              <button
+                                disabled
+                                className="inline-flex items-center px-3 py-1 border border-transparent rounded-md text-sm font-medium text-gray-400 bg-gray-100 cursor-not-allowed"
+                              >
+                                {campaign.status === 'sending' ? 'Sending...' : 'Sent'}
+                              </button>
+                            )}
                             <button
-                              onClick={() => handleSendCampaign(campaign.id)}
-                              className="inline-flex items-center px-3 py-1 border border-transparent rounded-md text-sm font-medium text-white bg-green-600 hover:bg-green-700"
+                              onClick={() => handleDeleteCampaign(campaign.id)}
+                              className="inline-flex items-center px-3 py-1 border border-gray-300 rounded-md text-sm font-medium text-gray-700 bg-white hover:bg-gray-50"
                             >
-                              {campaign.campaign_type === 'sequence' ? 'Edit Steps' : 'Send'}
+                              Delete
                             </button>
-                          ) : (
-                            <button
-                              disabled
-                              className="inline-flex items-center px-3 py-1 border border-transparent rounded-md text-sm font-medium text-gray-400 bg-gray-100 cursor-not-allowed"
-                            >
-                              {campaign.status === 'sending' ? 'Sending...' : 'Sent'}
-                            </button>
-                          )}
-                          <button
-                            onClick={() => handleDeleteCampaign(campaign.id)}
-                            className="inline-flex items-center px-3 py-1 border border-gray-300 rounded-md text-sm font-medium text-gray-700 bg-white hover:bg-gray-50"
-                          >
-                            Delete
-                          </button>
+                          </div>
                         </div>
                       </div>
-                    </div>
                     </li>
                   ))}
               </ul>
             </div>
           </div>
         </div>
+      </main>
 
       {showCreateModal && (
         <div className="fixed inset-0 bg-gray-500 bg-opacity-75 flex items-center justify-center z-50">
@@ -374,7 +374,6 @@ export default function DMPage() {
           </div>
         </div>
       )}
-      </main>
     </div>
   );
 }

@@ -19,19 +19,8 @@ export default function WorkflowBuilderPage() {
   const [campaignId, setCampaignId] = useState('');
   const [selectedStep, setSelectedStep] = useState<Step | null>(null);
   const [showAddModal, setShowAddModal] = useState(false);
+  const [showTestModal, setShowTestModal] = useState(false);
   const [loading, setLoading] = useState(true);
-
-  useEffect(() => {
-    const urlParams = new URLSearchParams(window.location.search);
-    const campaignIdParam = urlParams.get('campaign_id');
-
-    if (campaignIdParam) {
-      setCampaignId(campaignIdParam);
-      fetchSteps(campaignIdParam);
-    }
-
-    setLoading(false);
-  }, [campaignIdParam]);
 
   const fetchSteps = async (id: string) => {
     try {
@@ -47,6 +36,18 @@ export default function WorkflowBuilderPage() {
       console.error('Error fetching steps:', error);
     }
   };
+
+  useEffect(() => {
+    const urlParams = new URLSearchParams(window.location.search);
+    const campaignIdParam = urlParams.get('campaign_id');
+
+    if (campaignIdParam) {
+      setCampaignId(campaignIdParam);
+      fetchSteps(campaignIdParam);
+    }
+
+    setLoading(false);
+  }, [campaignIdParam]);
 
   const addStep = async (newStepData: {
     step_order: number;
@@ -570,7 +571,7 @@ function TestModal({ onClose, steps }: any) {
               <br /><br />
               <strong>Preview:</strong>
               <ul className="mt-2 space-y-2">
-                {steps.map((step) => (
+                {steps.map((step: Step) => (
                   <li key={step.id} className="flex items-start">
                     <span className="bg-indigo-100 text-indigo-800 rounded-full w-6 h-6 flex items-center justify-center font-bold mr-2 mt-1">
                       {step.step_order + 1}
@@ -623,10 +624,8 @@ function TestModal({ onClose, steps }: any) {
               className="px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-indigo-600 hover:bg-indigo-700 disabled:bg-gray-400 disabled:cursor-not-allowed"
             >
               {simulating ? 'Simulating...' : 'Start Simulation'}
-              </button>
-            </div>
+            </button>
           </div>
-        </div>
         </div>
       </div>
   );
