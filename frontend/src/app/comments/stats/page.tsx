@@ -23,7 +23,7 @@ export default function StatsPage() {
   const fetchStats = async () => {
     try {
       const token = localStorage.getItem('accessToken');
-      const response = await fetch(`http://localhost:8000/api/comments/stats?timeRange=${timeRange}`, {
+      const response = await fetch(`http://localhost:8000/api/comments/stats`, {
         headers: { Authorization: `Bearer ${token}` },
       });
 
