@@ -1,4 +1,4 @@
-import axios, { AxiosInstance, AxiosError } from 'axios';
+import axios from 'axios';
 import config from '../config';
 
 interface InstagramConfig {
@@ -7,7 +7,7 @@ interface InstagramConfig {
 }
 
 class InstagramGraphClient {
-  private client: AxiosInstance;
+  private client: any;
 
   constructor(accessToken: string) {
     this.client = axios.create({
@@ -75,6 +75,48 @@ class InstagramGraphClient {
     }
   }
 
+  async publishMedia(containerId: string) {
+    try {
+      const response = await this.client.post(
+        `/${config.instagram.apiVersion}/${containerId}/content_publish`,
+        {}
+      );
+      return response.data.id;
+    } catch (error) {
+      this.handleError(error, 'publishMedia');
+      throw error;
+    }
+  }
+
+  async getMediaStatus(mediaId: string) {
+    try {
+      const response = await this.client.get(
+        `/${config.instagram.apiVersion}/${mediaId}?fields=status_code`
+      );
+      return response.data.status_code;
+    } catch (error) {
+      this.handleError(error, 'getMediaStatus');
+      throw error;
+    }
+  }
+
+  async createCarouselContainer(childrenMediaIds: string[], caption: string) {
+    try {
+      const response = await this.client.post(
+        `/${config.instagram.apiVersion}/me/media`,
+        {
+          media_type: 'CAROUSEL_ALBUM',
+          children: childrenMediaIds.map((id) => ({ id })),
+          caption,
+        }
+      );
+      return response.data.id;
+    } catch (error) {
+      this.handleError(error, 'createCarouselContainer');
+      throw error;
+    }
+  }
+
   async likeMedia(mediaId: string) {
     try {
       await this.client.post(`/${config.instagram.apiVersion}/${mediaId}/likes`);
@@ -96,25 +138,21 @@ class InstagramGraphClient {
   }
 
   private handleError(error: any, operation: string): void {
-    if (axios.isAxiosError(error)) {
-      const axiosError = error as AxiosError;
+    if (error && error.response) {
+      const status = error.response.status;
+      const data = error.response.data as any;
 
-      if (axiosError.response) {
-        const status = axiosError.response.status;
-        const data = axiosError.response.data as any;
+      console.error(`Instagram API Error [${operation}]:`, {
+        status,
+        data,
+      });
 
-        console.error(`Instagram API Error [${operation}]:`, {
-          status,
-          data,
-        });
+      if (status === 429) {
+        console.error('Rate limit exceeded. Please retry later.');
+      }
 
-        if (status === 429) {
-          console.error('Rate limit exceeded. Please retry later.');
-        }
-
-        if (status === 401) {
-          console.error('Authentication failed. Token may be expired.');
-        }
+      if (status === 401) {
+        console.error('Authentication failed. Token may be expired.');
       }
     } else {
       console.error(`Unexpected error [${operation}]:`, error);

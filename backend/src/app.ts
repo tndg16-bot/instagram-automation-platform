@@ -6,9 +6,17 @@ import { rateLimit } from 'express-rate-limit';
 
 // Route imports
 import authRoutes from './api/routes/auth';
+import instagramRoutes from './api/routes/instagram';
 import dmRoutes from './api/routes/dm';
+import dmInboxRoutes from './api/routes/dmInbox';
 import commentRoutes from './api/routes/comment';
 import workflowRoutes from './api/routes/workflow';
+import aiRoutes from './api/routes/ai';
+import ordersRoutes from './api/routes/orders';
+import bookingsRoutes from './api/routes/bookings';
+import postsRoutes from './api/routes/posts';
+import analyticsRoutes from './api/routes/analytics';
+import webhooksRoutes from './api/routes/webhooks';
 
 dotenv.config();
 
@@ -19,8 +27,26 @@ const PORT = process.env.APP_PORT || 8000;
 app.use(helmet());
 
 // CORS configuration
+// CORS configuration
+const allowedOrigins = [
+  process.env.FRONTEND_URL,
+  'http://localhost:3000',
+  'http://localhost:3001',
+  'http://localhost:3002',
+  'http://localhost:3020', // Frontend development port
+  'http://localhost:3030'
+].filter(Boolean) as string[];
+
 app.use(cors({
-  origin: process.env.FRONTEND_URL || 'http://localhost:3000',
+  origin: (origin, callback) => {
+    // Check if origin is allowed or if it's not defined (e.g. same origin or server-to-server)
+    if (!origin || allowedOrigins.includes(origin)) {
+      callback(null, true);
+    } else {
+      console.warn(`Blocked by CORS: ${origin}`);
+      callback(new Error('Not allowed by CORS'));
+    }
+  },
   credentials: true,
 }));
 
@@ -38,9 +64,17 @@ app.use(express.urlencoded({ extended: true }));
 
 // API routes
 app.use('/api/auth', authRoutes);
+app.use('/api/instagram', instagramRoutes);
 app.use('/api/dm', dmRoutes);
+app.use('/api/dm', dmInboxRoutes);
 app.use('/api/comments', commentRoutes);
 app.use('/api/workflows', workflowRoutes);
+app.use('/api/ai', aiRoutes);
+app.use('/api/posts', postsRoutes);
+app.use('/api/analytics', analyticsRoutes);
+app.use('/api/webhooks', webhooksRoutes);
+app.use('/api/orders', ordersRoutes);
+app.use('/api/bookings', bookingsRoutes);
 
 // Health check
 app.get('/health', (req: Request, res: Response) => {
@@ -59,11 +93,5 @@ app.use((err: Error, req: Request, res: Response, next: NextFunction) => {
     error: process.env.NODE_ENV === 'production' ? 'Internal Server Error' : err.message,
   });
 });
-
-if (process.env.NODE_ENV !== 'test') {
-  app.listen(PORT, () => {
-    console.log(`Server running on port ${PORT}`);
-  });
-}
 
 export default app;

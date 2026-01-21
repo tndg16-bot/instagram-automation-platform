@@ -1,0 +1,65 @@
+{
+  "steps": [
+    {
+      "step": "create",
+      "status": 201,
+      "data": {
+        "success": true,
+        "data": {
+          "id": "wf-1768909444155",
+          "user_id": "mock-user-id",
+          "name": "Test Workflow Native",
+          "nodes": [
+            {
+              "id": "1",
+              "type": "trigger"
+            }
+          ],
+          "edges": [],
+          "is_active": true,
+          "trigger_config": {},
+          "created_at": "2026-01-20T11:44:04.155Z",
+          "updated_at": "2026-01-20T11:44:04.155Z"
+        }
+      }
+    },
+    {
+      "step": "list",
+      "status": 200,
+      "count": 2
+    },
+    {
+      "step": "update",
+      "status": 200,
+      "data": {
+        "success": true,
+        "data": {
+          "id": "wf-1768909444155",
+          "user_id": "mock-user-id",
+          "name": "Updated Name Native",
+          "nodes": [
+            {
+              "id": "1",
+              "type": "trigger"
+            }
+          ],
+          "edges": [],
+          "is_active": true,
+          "trigger_config": {},
+          "created_at": "2026-01-20T11:44:04.155Z",
+          "updated_at": "2026-01-20T11:44:04.170Z"
+        }
+      }
+    },
+    {
+      "step": "execute",
+      "status": 200,
+      "data": {
+        "success": true,
+        "message": "Workflow wf-1768909444155 execution started (Mock)",
+        "executionId": "exec-1768909444173"
+      }
+    }
+  ],
+  "success": true
+}

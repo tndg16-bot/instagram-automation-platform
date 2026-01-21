@@ -1,0 +1,26 @@
+{
+  "name": "analytics-dashboard",
+  "version": "1.0.0",
+  "description": "Analytics dashboard for Instagram Automation Platform",
+  "main": "src/index.js",
+  "scripts": {
+    "start": "node src/index.js",
+    "dev": "nodemon src/index.js",
+    "test": "jest",
+    "test:coverage": "jest --coverage"
+  },
+  "keywords": ["analytics", "dashboard", "instagram"],
+  "author": "GLM-4.7",
+  "license": "MIT",
+  "dependencies": {
+    "express": "^4.18.2",
+    "cors": "^2.8.5",
+    "dotenv": "^16.3.1",
+    "pg": "^8.11.3",
+    "redis": "^4.6.7"
+  },
+  "devDependencies": {
+    "jest": "^29.7.0",
+    "nodemon": "^3.0.1"
+  }
+}

@@ -1,0 +1,365 @@
+'use client';
+
+import { useState, useEffect } from 'react';
+import Link from 'next/link';
+
+export default function DMPage() {
+  const [campaigns, setCampaigns] = useState<any[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [showCreateModal, setShowCreateModal] = useState(false);
+  const [newCampaign, setNewCampaign] = useState({
+    name: '',
+    message: '',
+    message_type: 'TEXT',
+    instagram_account_id: '',
+    recipients: [] as any[],
+    campaign_type: 'simple' as 'simple' | 'sequence',
+  });
+
+  useEffect(() => {
+    fetchCampaigns();
+  }, []);
+
+  const fetchCampaigns = async () => {
+    try {
+      const token = localStorage.getItem('accessToken');
+      const response = await fetch('http://localhost:8000/api/dm/campaigns', {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      const data = await response.json();
+      if (data.success) {
+        setCampaigns(data.campaigns);
+      }
+    } catch (error) {
+      console.error('Error fetching campaigns:', error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleCreateCampaign = async (e: React.FormEvent) => {
+    e.preventDefault();
+    try {
+      const token = localStorage.getItem('accessToken');
+      const response = await fetch('http://localhost:8000/api/dm/campaigns', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`,
+        },
+        body: JSON.stringify(newCampaign),
+      });
+      const data = await response.json();
+      if (data.success) {
+        if (data.campaign.campaign_type === 'sequence') {
+          window.location.href = `/workflow?campaign_id=${data.campaign.id}`;
+        } else {
+          setShowCreateModal(false);
+          setNewCampaign({
+            name: '',
+            message: '',
+            message_type: 'TEXT',
+            instagram_account_id: '',
+            recipients: [] as any[],
+            campaign_type: 'simple',
+          });
+          fetchCampaigns();
+        }
+      } else {
+        alert(data.error || 'Failed to create campaign');
+      }
+    } catch (error) {
+      console.error('Error creating campaign:', error);
+      alert('Failed to create campaign');
+    }
+  };
+
+  const handleSendCampaign = async (campaignId: string) => {
+    if (!confirm('Are you sure you want to send this campaign?')) {
+      return;
+    }
+
+    try {
+      const token = localStorage.getItem('accessToken');
+      const response = await fetch(`http://localhost:8000/api/dm/campaigns/${campaignId}/send`, {
+        method: 'POST',
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      const data = await response.json();
+      if (data.success) {
+        alert('Campaign sent successfully!');
+        fetchCampaigns();
+      } else {
+        alert(data.error || 'Failed to send campaign');
+      }
+    } catch (error) {
+      console.error('Error sending campaign:', error);
+      alert('Failed to send campaign');
+    }
+  };
+
+  const handleDeleteCampaign = async (campaignId: string) => {
+    if (!confirm('Are you sure you want to delete this campaign?')) {
+      return;
+    }
+
+    try {
+      const token = localStorage.getItem('accessToken');
+      const response = await fetch(`http://localhost:8000/api/dm/campaigns/${campaignId}`, {
+        method: 'DELETE',
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      const data = await response.json();
+      if (data.success) {
+        alert('Campaign deleted successfully!');
+        fetchCampaigns();
+      } else {
+        alert(data.error || 'Failed to delete campaign');
+      }
+    } catch (error) {
+      console.error('Error deleting campaign:', error);
+      alert('Failed to delete campaign');
+    }
+  };
+
+  const getStatusColor = (status: string) => {
+    switch (status) {
+      case 'draft':
+        return 'bg-gray-100 text-gray-800';
+      case 'scheduled':
+        return 'bg-blue-100 text-blue-800';
+      case 'sending':
+        return 'bg-yellow-100 text-yellow-800';
+      case 'completed':
+        return 'bg-green-100 text-green-800';
+      case 'failed':
+        return 'bg-red-100 text-red-800';
+      default:
+        return 'bg-gray-100 text-gray-800';
+    }
+  };
+
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+        <div className="text-center">
+          <div className="inline-block animate-spin rounded-full h-12 w-12 border-b-2 border-indigo-600"></div>
+          <p className="mt-4 text-gray-600">Loading...</p>
+        </div>
+      </div>
+    );
+  }
+
+  return (
+    <div className="min-h-screen bg-gray-50">
+      <nav className="bg-white shadow-sm border-b border-gray-200">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="flex justify-between h-16">
+            <div className="flex items-center">
+              <h1 className="text-2xl font-bold text-gray-900">InstaFlow AI</h1>
+            </div>
+            <div className="flex items-center space-x-4">
+              <Link href="/dashboard" className="text-gray-600 hover:text-gray-900">
+                Dashboard
+              </Link>
+              <Link href="/segments" className="text-gray-600 hover:text-gray-900">
+                Segments
+              </Link>
+              <button
+                onClick={() => {
+                  localStorage.removeItem('accessToken');
+                  window.location.href = '/login';
+                }}
+                className="text-gray-600 hover:text-gray-900"
+              >
+                Logout
+              </button>
+            </div>
+          </div>
+        </div>
+      </nav>
+
+      <main className="max-w-7xl mx-auto py-6 sm:px-6 lg:px-8">
+        <div className="px-4 py-6 sm:px-0">
+          <div className="md:flex md:items-center md:justify-between">
+            <div className="flex-1 min-w-0">
+              <h2 className="text-2xl font-bold leading-7 text-gray-900 sm:text-3xl sm:truncate">
+                Direct Messages
+              </h2>
+            </div>
+            <div className="mt-4 flex md:mt-0 md:ml-4">
+              <button
+                onClick={() => setShowCreateModal(true)}
+                className="inline-flex items-center px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
+              >
+                Create Campaign
+              </button>
+            </div>
+          </div>
+
+          <div className="mt-8">
+            <div className="bg-white shadow overflow-hidden sm:rounded-md">
+              <ul className="divide-y divide-gray-200">
+                {campaigns.length === 0 ? (
+                  <li className="px-4 py-4 sm:px-6">
+                    <div className="flex items-center justify-between">
+                      <p className="text-sm text-gray-500">
+                        No campaigns yet. Create your first campaign!
+                      </p>
+                    </div>
+                   </li>
+                ) : (
+                  campaigns.map((campaign) => (
+                    <li key={campaign.id}>
+                      <div className="px-4 py-4 sm:px-6">
+                        <div className="flex items-center justify-between">
+                          <div className="flex-1 min-w-0">
+                            <div className="flex items-center">
+                              <p className="text-sm font-medium text-indigo-600 truncate">
+                                {campaign.name}
+                              </p>
+                              <span className={`ml-3 inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${getStatusColor(campaign.status)}`}>
+                                {campaign.status}
+                              </span>
+                              {campaign.campaign_type === 'sequence' && (
+                                <span className="ml-2 inline-flex items-center px-2 py-1 bg-indigo-100 text-indigo-600 rounded-full text-xs font-medium">
+                                  🔄
+                                </span>
+                              )}
+                            </div>
+                            <div className="mt-2 sm:flex sm:justify-between">
+                              <div className="sm:flex">
+                                <p className="flex items-center text-sm text-gray-500">
+                                  <span className="mr-1.5">📤</span>
+                                  {campaign.sent_count || 0} / {campaign.total_recipients || 0} sent
+                                </p>
+                                <p className="mt-2 flex items-center text-sm text-gray-500 sm:mt-0 sm:ml-6">
+                                  <span className="mr-1.5">✅</span>
+                                  {campaign.delivered_count || 0} delivered
+                                </p>
+                              </div>
+                            </div>
+                          </div>
+                             <div className="ml-5 flex-shrink-0 flex space-x-2">
+                                <button
+                                  onClick={() => handleDeleteCampaign(campaign.id)}
+                                >
+                                  <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 text-gray-400" fill="none" viewBox="0 0 20 20" stroke="currentColor">
+                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 11.667a11.667 11.667 0 01.004-.422L5.004 14.667a11.667 11.667 0 016-1.004-.422 0-5.004.004 5.004 5.004 0-16.004-.422-.238-6.323.322.084-6.517-6.517z" />
+                                  </svg>
+                                </button>
+                              </div>
+                        </div>
+                      </div>
+                    </li>
+                  ))}
+              </ul>
+            </div>
+          </div>
+        </div>
+      </main>
+
+      {showCreateModal && (
+        <div className="fixed inset-0 bg-gray-500 bg-opacity-75 flex items-center justify-center z-50">
+          <div className="bg-white rounded-lg shadow-xl max-w-lg w-full mx-4">
+            <div className="px-4 py-5 sm:p-6">
+              <h3 className="text-lg leading-6 font-medium text-gray-900 mb-4">
+                Create New Campaign
+              </h3>
+              <form onSubmit={handleCreateCampaign} className="space-y-4">
+                <div>
+                  <label htmlFor="name" className="block text-sm font-medium text-gray-700">
+                    Campaign Name
+                  </label>
+                  <input
+                    type="text"
+                    id="name"
+                    required
+                    value={newCampaign.name}
+                    onChange={(e) => setNewCampaign({ ...newCampaign, name: e.target.value })}
+                    className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
+                  />
+                </div>
+
+                <div>
+                  <label htmlFor="message" className="block text-sm font-medium text-gray-700">
+                    Message
+                  </label>
+                  <textarea
+                    id="message"
+                    required
+                    rows={4}
+                    value={newCampaign.message}
+                    onChange={(e) => setNewCampaign({ ...newCampaign, message: e.target.value })}
+                    className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium text-gray-700">
+                    Campaign Type
+                  </label>
+                  <div className="mt-2 flex items-center space-x-4">
+                    <label className="inline-flex items-center">
+                      <input
+                        type="radio"
+                        name="campaignType"
+                        value="simple"
+                        checked={newCampaign.campaign_type === 'simple'}
+                        onChange={(e) => setNewCampaign({ ...newCampaign, campaign_type: e.target.value as 'simple' | 'sequence' })}
+                        className="mr-2"
+                      />
+                      <span className="text-sm text-gray-700">Simple Broadcast</span>
+                    </label>
+                    <label className="inline-flex items-center">
+                      <input
+                        type="radio"
+                        name="campaignType"
+                        value="sequence"
+                        checked={newCampaign.campaign_type === 'sequence'}
+                        onChange={(e) => setNewCampaign({ ...newCampaign, campaign_type: e.target.value as 'simple' | 'sequence' })}
+                        className="mr-2"
+                      />
+                      <span className="text-sm text-gray-700">Step Sequence</span>
+                    </label>
+                  </div>
+                </div>
+
+                <div>
+                  <label htmlFor="account" className="block text-sm font-medium text-gray-700">
+                    Instagram Account
+                  </label>
+                  <select
+                    id="account"
+                    required
+                    value={newCampaign.instagram_account_id}
+                    onChange={(e) => setNewCampaign({ ...newCampaign, instagram_account_id: e.target.value })}
+                    className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
+                  >
+                    <option value="">Select account...</option>
+                  </select>
+                </div>
+
+                <div className="flex justify-end space-x-3 pt-4">
+                  <button
+                    type="button"
+                    onClick={() => setShowCreateModal(false)}
+                    className="px-4 py-2 border border-gray-300 rounded-md text-sm font-medium text-gray-700 bg-white hover:bg-gray-50"
+                  >
+                    Cancel
+                  </button>
+                  <button
+                    type="submit"
+                    className="px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-indigo-600 hover:bg-indigo-700"
+                  >
+                    Create Campaign
+                  </button>
+                </div>
+              </form>
+            </div>
+          </div>
+        </div>
+      )}
+    </div>
+  );
+}
