@@ -2,6 +2,7 @@ import { Router, Response } from 'express';
 import { authenticate, AuthRequest } from '../../utils/auth';
 import CommentService from '../../services/commentService';
 import InstagramGraphClient from '../../services/instagramClient';
+import { getInstagramAccessToken } from '../../utils/tokenManager';
 
 const router = Router();
 const commentService = new CommentService();
@@ -64,9 +65,8 @@ router.post('/fetch', async (req: AuthRequest, res: Response) => {
       return res.status(400).json({ error: 'Missing media_id or instagram_account_id' });
     }
 
-    // Get Instagram access token
-    // TODO: Fetch from instagram_accounts table using instagram_account_id
-    const accessToken = 'TEMP_ACCESS_TOKEN'; // Placeholder
+    // Get Instagram access token from account
+    const accessToken = await getInstagramAccessToken(userId, instagram_account_id);
 
     // Fetch and save comments
     await commentService.fetchAndSaveComments(media_id, accessToken, userId);
@@ -93,7 +93,7 @@ router.post('/:id/reply', async (req: AuthRequest, res: Response) => {
     }
 
     // Get Instagram access token
-    const accessToken = 'TEMP_ACCESS_TOKEN'; // Placeholder
+    const accessToken = await getInstagramAccessToken(userId);
 
     const client = new InstagramGraphClient(accessToken);
     await client.replyToComment(commentId, message);
@@ -277,7 +277,13 @@ router.put('/keywords/:id', async (req: AuthRequest, res: Response) => {
     const ruleId = req.params.id as string;
     const { keyword, is_active } = req.body;
 
-    // TODO: Verify ownership
+    // Get rule to verify ownership
+    const rule = await commentService.getMatchingKeywordRules(userId, keyword || '');
+    const existingRule = rule.find((r: any) => r.id === ruleId);
+
+    if (!existingRule || existingRule.user_id !== userId) {
+      return res.status(404).json({ error: 'Keyword rule not found' });
+    }
 
     await commentService.updateKeywordRule(ruleId, keyword || '', is_active !== undefined ? is_active : true);
 
@@ -294,9 +300,16 @@ router.put('/keywords/:id', async (req: AuthRequest, res: Response) => {
  */
 router.delete('/keywords/:id', async (req: AuthRequest, res: Response) => {
   try {
+    const userId = req.user!.id;
     const ruleId = req.params.id as string;
 
-    // TODO: Verify ownership
+    // Verify ownership before deletion
+    const rules = await commentService.getAllKeywordRules(userId);
+    const existingRule = rules.find((r: any) => r.id === ruleId);
+
+    if (!existingRule) {
+      return res.status(404).json({ error: 'Keyword rule not found' });
+    }
 
     await commentService.deleteKeywordRule(ruleId);
 
@@ -321,7 +334,7 @@ router.post('/auto-reply', async (req: AuthRequest, res: Response) => {
     }
 
     // Get Instagram access token
-    const accessToken = 'TEMP_ACCESS_TOKEN'; // Placeholder
+    const accessToken = await getInstagramAccessToken(userId, instagram_account_id);
 
     const repliedCount = await commentService.autoReplyToComments(accessToken, userId);
 
