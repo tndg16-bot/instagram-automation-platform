@@ -118,6 +118,31 @@ $issues = @(
         title = "Issue #25: Meta Tech Provider認定"
         body = "Phase 4: API連携`n`n- 要件確認・準備`n- 申請・審査"
         labels = "Phase 4,compliance"
+    },
+    @{
+        title = "[Phase5] Member Dashboard"
+        body = "Phase 5: メンバー限定機能`n`n- 会員専用ダッシュボード`n- 購入済みコンテンツ`n- 会員情報"
+        labels = "phase5,frontend"
+    },
+    @{
+        title = "[Phase5] Community Forum UI"
+        body = "Phase 5: コミュニティフォーラム`n`n- トピック一覧`n- スレッド`n- 投稿"
+        labels = "phase5,frontend"
+    },
+    @{
+        title = "[Phase5] Event Announcement Page"
+        body = "Phase 5: イベント告知`n`n- イベント一覧`n- 参加登録"
+        labels = "phase5,frontend"
+    },
+    @{
+        title = "[Phase5] Member & Community API"
+        body = "Phase 5: バックエンド機能`n`n- 会員管理・コミュニティAPI`n- フォーラムCRUD"
+        labels = "phase5,backend"
+    },
+    @{
+        title = "[Phase5] AI Moderation & Welcome Node"
+        body = "Phase 5: AI機能`n`n- スパム検出`n- 自動DMウェルカム"
+        labels = "phase5,ai"
     }
 )
 

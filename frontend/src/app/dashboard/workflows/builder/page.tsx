@@ -29,6 +29,18 @@ interface NodeType {
 interface NodeData extends Record<string, unknown> {
   label: string;
   nodeType?: string;
+  targetValue?: string | number | string[] | undefined;
+  operator?: string;
+  comparisonValue?: string;
+  recipient?: string;
+  message?: string;
+  replyText?: string;
+  keywords?: string;
+  tone?: string;
+  includeHashtags?: boolean;
+  promptTemplate?: string;
+  model?: string;
+  temperature?: number;
 }
 
 // 条件ノードのパラメータ
@@ -564,7 +576,7 @@ export default function WorkflowBuilderPage() {
                       </label>
                       <input
                         type="text"
-                        value={selectedNode.data.targetValue || ''}
+                        value={String(selectedNode.data.targetValue || '')}
                         onChange={(e: ChangeEvent<HTMLInputElement>) => {
                           if (!selectedNode) return;
                           setNodes((nds) =>
@@ -609,13 +621,13 @@ export default function WorkflowBuilderPage() {
                       </label>
                       <input
                         type="text"
-                        value={selectedNode.data.comparisonValue || ''}
+                        value={selectedNode.data?.comparisonValue || ''}
                         onChange={(e) => {
                           if (!selectedNode) return;
                           setNodes((nds) =>
                             nds.map((node) =>
                               node.id === selectedNode.id
-                                ? { ...node, data: { ...node.data, comparisonValue: e.target.value } }
+                                ? { ...node, data: { ...node.data, comparisonValue: e.target.value as string } }
                                 : node
                             )
                           );
@@ -639,13 +651,13 @@ export default function WorkflowBuilderPage() {
                       </label>
                       <input
                         type="text"
-                        value={selectedNode.data.recipient || ''}
+                        value={selectedNode.data?.recipient || ''}
                         onChange={(e) => {
                           if (!selectedNode) return;
                           setNodes((nds) =>
                             nds.map((node) =>
                               node.id === selectedNode.id
-                                ? { ...node, data: { ...node.data, recipient: e.target.value } }
+                                ? { ...node, data: { ...node.data, recipient: e.target.value as string } }
                                 : node
                             )
                           );
