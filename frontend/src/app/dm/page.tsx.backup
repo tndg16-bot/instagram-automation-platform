@@ -207,8 +207,8 @@ export default function DMPage() {
                         No campaigns yet. Create your first campaign!
                       </p>
                     </div>
-                  </li>
-                  ) : (
+                   </li>
+                ) : (
                   campaigns.map((campaign) => (
                     <li key={campaign.id}>
                       <div className="px-4 py-4 sm:px-6">
@@ -240,29 +240,15 @@ export default function DMPage() {
                               </div>
                             </div>
                           </div>
-                          <div className="ml-5 flex-shrink-0 flex space-x-2">
-                            {campaign.status === 'draft' || campaign.status === 'scheduled' ? (
-                              <button
-                                onClick={() => handleSendCampaign(campaign.id)}
-                                className="inline-flex items-center px-3 py-1 border border-transparent rounded-md text-sm font-medium text-white bg-green-600 hover:bg-green-700"
-                              >
-                                {campaign.campaign_type === 'sequence' ? 'Edit Steps' : 'Send'}
-                              </button>
-                            ) : (
-                              <button
-                                disabled
-                                className="inline-flex items-center px-3 py-1 border border-transparent rounded-md text-sm font-medium text-gray-400 bg-gray-100 cursor-not-allowed"
-                              >
-                                {campaign.status === 'sending' ? 'Sending...' : 'Sent'}
-                              </button>
-                            )}
-                            <button
-                              onClick={() => handleDeleteCampaign(campaign.id)}
-                              className="inline-flex items-center px-3 py-1 border border-gray-300 rounded-md text-sm font-medium text-gray-700 bg-white hover:bg-gray-50"
-                            >
-                              Delete
-                            </button>
-                          </div>
+                             <div className="ml-5 flex-shrink-0 flex space-x-2">
+                                <button
+                                  onClick={() => handleDeleteCampaign(campaign.id)}
+                                >
+                                  <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 text-gray-400" fill="none" viewBox="0 0 20 20" stroke="currentColor">
+                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 11.667a11.667 11.667 0 01.004-.422L5.004 14.667a11.667 11.667 0 016-1.004-.422 0-5.004.004 5.004 5.004 0-16.004-.422-.238-6.323.322.084-6.517-6.517z" />
+                                  </svg>
+                                </button>
+                              </div>
                         </div>
                       </div>
                     </li>

@@ -22,6 +22,9 @@ export default function WorkflowBuilderPage() {
   const [showTestModal, setShowTestModal] = useState(false);
   const [loading, setLoading] = useState(true);
 
+  // Get campaign_id from URL
+  const campaignIdParam = typeof window !== 'undefined' ? new URLSearchParams(window.location.search).get('campaign_id') : null;
+
   const fetchSteps = async (id: string) => {
     try {
       const token = localStorage.getItem('accessToken');

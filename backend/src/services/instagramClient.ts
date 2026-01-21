@@ -75,6 +75,48 @@ class InstagramGraphClient {
     }
   }
 
+  async publishMedia(containerId: string) {
+    try {
+      const response = await this.client.post(
+        `/${config.instagram.apiVersion}/${containerId}/content_publish`,
+        {}
+      );
+      return response.data.id;
+    } catch (error) {
+      this.handleError(error, 'publishMedia');
+      throw error;
+    }
+  }
+
+  async getMediaStatus(mediaId: string) {
+    try {
+      const response = await this.client.get(
+        `/${config.instagram.apiVersion}/${mediaId}?fields=status_code`
+      );
+      return response.data.status_code;
+    } catch (error) {
+      this.handleError(error, 'getMediaStatus');
+      throw error;
+    }
+  }
+
+  async createCarouselContainer(childrenMediaIds: string[], caption: string) {
+    try {
+      const response = await this.client.post(
+        `/${config.instagram.apiVersion}/me/media`,
+        {
+          media_type: 'CAROUSEL_ALBUM',
+          children: childrenMediaIds.map((id) => ({ id })),
+          caption,
+        }
+      );
+      return response.data.id;
+    } catch (error) {
+      this.handleError(error, 'createCarouselContainer');
+      throw error;
+    }
+  }
+
   async likeMedia(mediaId: string) {
     try {
       await this.client.post(`/${config.instagram.apiVersion}/${mediaId}/likes`);

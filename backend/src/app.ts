@@ -8,11 +8,15 @@ import { rateLimit } from 'express-rate-limit';
 import authRoutes from './api/routes/auth';
 import instagramRoutes from './api/routes/instagram';
 import dmRoutes from './api/routes/dm';
+import dmInboxRoutes from './api/routes/dmInbox';
 import commentRoutes from './api/routes/comment';
 import workflowRoutes from './api/routes/workflow';
 import aiRoutes from './api/routes/ai';
 import ordersRoutes from './api/routes/orders';
 import bookingsRoutes from './api/routes/bookings';
+import postsRoutes from './api/routes/posts';
+import analyticsRoutes from './api/routes/analytics';
+import webhooksRoutes from './api/routes/webhooks';
 
 dotenv.config();
 
@@ -62,9 +66,13 @@ app.use(express.urlencoded({ extended: true }));
 app.use('/api/auth', authRoutes);
 app.use('/api/instagram', instagramRoutes);
 app.use('/api/dm', dmRoutes);
+app.use('/api/dm', dmInboxRoutes);
 app.use('/api/comments', commentRoutes);
 app.use('/api/workflows', workflowRoutes);
 app.use('/api/ai', aiRoutes);
+app.use('/api/posts', postsRoutes);
+app.use('/api/analytics', analyticsRoutes);
+app.use('/api/webhooks', webhooksRoutes);
 app.use('/api/orders', ordersRoutes);
 app.use('/api/bookings', bookingsRoutes);
 
