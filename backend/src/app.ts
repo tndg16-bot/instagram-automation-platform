@@ -12,6 +12,7 @@ import dmInboxRoutes from './api/routes/dmInbox';
 import commentRoutes from './api/routes/comment';
 import workflowRoutes from './api/routes/workflow';
 import aiRoutes from './api/routes/ai';
+import newsletterRoutes from './api/routes/newsletter';
 import ordersRoutes from './api/routes/orders';
 import bookingsRoutes from './api/routes/bookings';
 import postsRoutes from './api/routes/posts';
@@ -73,6 +74,8 @@ app.use('/api/ai', aiRoutes);
 app.use('/api/posts', postsRoutes);
 app.use('/api/analytics', analyticsRoutes);
 app.use('/api/webhooks', webhooksRoutes);
+app.use('/api/newsletter', newsletterRoutes);
+app.use('/api/email', emailRoutes);
 app.use('/api/orders', ordersRoutes);
 app.use('/api/bookings', bookingsRoutes);
 

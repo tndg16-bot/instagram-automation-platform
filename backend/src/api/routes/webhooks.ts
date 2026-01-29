@@ -1,340 +1,331 @@
-import { Router, Response } from 'express';
-import { authenticate, AuthRequest } from '../../utils/auth';
-import webhookService, { Webhook } from '../../services/webhookService';
+import { Router, Request, Response } from 'express';
+import { query } from '../../config/database';
 
 const router = Router();
 
-router.use(authenticate);
-
-/**
- * POST /api/webhooks
- * Create new webhook
- */
-router.post('/', async (req: AuthRequest, res: Response) => {
+// GET /api/webhooks - List all webhooks
+router.get('/', async (req: Request, res: Response) => {
   try {
-    const userId = req.user!.id;
-    const { name, url, events } = req.body;
+    const userId = (req as any).user?.id;
 
-    if (!name || !url || !events || !Array.isArray(events)) {
-      return res.status(400).json({ error: 'Missing required fields: name, url, events' });
+    if (!userId) {
+      return res.status(401).json({ success: false, error: 'Unauthorized' });
     }
 
-    // Validate URL format
-    try {
-      new URL(url);
-    } catch (error) {
-      return res.status(400).json({ error: 'Invalid URL format' });
-    }
-
-    // Validate events
-    const validEvents = [
-      'dm.received',
-      'comment.created',
-      'comment.replied',
-      'follow.new',
-      'follow.removed',
-      'mention.created',
-      'like.added',
-      'media.published',
-      'media.scheduled',
-    ];
-
-    const invalidEvents = events.filter((event: string) => !validEvents.includes(event));
-    if (invalidEvents.length > 0) {
-      return res.status(400).json({ 
-        error: `Invalid events: ${invalidEvents.join(', ')}. Valid events: ${validEvents.join(', ')}` 
-      });
-    }
-
-    const webhook = await webhookService.createWebhook(userId, { name, url, events });
-
-    return res.json({ success: true, data: webhook });
-  } catch (error) {
-    console.error('Error creating webhook:', error);
-    return res.status(500).json({ error: 'Failed to create webhook' });
-  }
-});
-
-/**
- * GET /api/webhooks
- * Get all webhooks for authenticated user
- */
-router.get('/', async (req: AuthRequest, res: Response) => {
-  try {
-    const userId = req.user!.id;
-    const webhooks = await webhookService.getWebhooks(userId);
-
-    // Don't expose secret key in response
-    const safeWebhooks = webhooks.map((webhook) => ({
-      ...webhook,
-      secret: webhook.secret.substring(0, 8) + '...',
-    }));
-
-    return res.json({ success: true, webhooks: safeWebhooks });
-  } catch (error) {
-    console.error('Error fetching webhooks:', error);
-    return res.status(500).json({ error: 'Failed to fetch webhooks' });
-  }
-});
-
-/**
- * GET /api/webhooks/:id
- * Get webhook by ID
- */
-router.get('/:id', async (req: AuthRequest, res: Response) => {
-  try {
-    const userId = req.user!.id;
-    const webhookId = req.params.id as string;
-
-    const webhook = await webhookService.getWebhookById(webhookId);
-
-    if (!webhook || webhook.user_id !== userId) {
-      return res.status(404).json({ error: 'Webhook not found' });
-    }
-
-    // Don't expose secret key in response
-    const safeWebhook = {
-      ...webhook,
-      secret: webhook.secret.substring(0, 8) + '...',
-    };
-
-    return res.json({ success: true, data: safeWebhook });
-  } catch (error) {
-    console.error('Error fetching webhook:', error);
-    return res.status(500).json({ error: 'Failed to fetch webhook' });
-  }
-});
-
-/**
- * PUT /api/webhooks/:id
- * Update webhook
- */
-router.put('/:id', async (req: AuthRequest, res: Response) => {
-  try {
-    const userId = req.user!.id;
-    const webhookId = req.params.id as string;
-    const { name, url, events, is_active } = req.body;
-
-    // Verify ownership
-    const existingWebhook = await webhookService.getWebhookById(webhookId);
-    if (!existingWebhook || existingWebhook.user_id !== userId) {
-      return res.status(404).json({ error: 'Webhook not found' });
-    }
-
-    // Validate URL if provided
-    if (url) {
-      try {
-        new URL(url);
-      } catch (error) {
-        return res.status(400).json({ error: 'Invalid URL format' });
-      }
-    }
-
-    // Validate events if provided
-    if (events && Array.isArray(events)) {
-      const validEvents = [
-        'dm.received',
-        'comment.created',
-        'comment.replied',
-        'follow.new',
-        'follow.removed',
-        'mention.created',
-        'like.added',
-        'media.published',
-        'media.scheduled',
-      ];
-
-      const invalidEvents = events.filter((event: string) => !validEvents.includes(event));
-      if (invalidEvents.length > 0) {
-        return res.status(400).json({ 
-          error: `Invalid events: ${invalidEvents.join(', ')}` 
-        });
-      }
-    }
-
-    const updatedWebhook = await webhookService.updateWebhook(webhookId, userId, {
-      name,
-      url,
-      events,
-      is_active,
-    });
-
-    return res.json({ success: true, data: updatedWebhook });
-  } catch (error) {
-    console.error('Error updating webhook:', error);
-    return res.status(500).json({ error: 'Failed to update webhook' });
-  }
-});
-
-/**
- * DELETE /api/webhooks/:id
- * Delete webhook
- */
-router.delete('/:id', async (req: AuthRequest, res: Response) => {
-  try {
-    const userId = req.user!.id;
-    const webhookId = req.params.id as string;
-
-    // Verify ownership
-    const existingWebhook = await webhookService.getWebhookById(webhookId);
-    if (!existingWebhook || existingWebhook.user_id !== userId) {
-      return res.status(404).json({ error: 'Webhook not found' });
-    }
-
-    const deleted = await webhookService.deleteWebhook(webhookId, userId);
-
-    if (!deleted) {
-      return res.status(404).json({ error: 'Webhook not found' });
-    }
-
-    return res.json({ success: true, message: 'Webhook deleted successfully' });
-  } catch (error) {
-    console.error('Error deleting webhook:', error);
-    return res.status(500).json({ error: 'Failed to delete webhook' });
-  }
-});
-
-/**
- * POST /api/webhooks/:id/trigger
- * Test webhook trigger
- */
-router.post('/:id/trigger', async (req: AuthRequest, res: Response) => {
-  try {
-    const userId = req.user!.id;
-    const webhookId = req.params.id as string;
-    const { event_type, payload } = req.body;
-
-    if (!event_type || !payload) {
-      return res.status(400).json({ error: 'Missing event_type or payload' });
-    }
-
-    // Verify ownership
-    const webhook = await webhookService.getWebhookById(webhookId);
-    if (!webhook || webhook.user_id !== userId) {
-      return res.status(404).json({ error: 'Webhook not found' });
-    }
-
-    // Create test event
-    const testEvent = {
-      id: `test_${Date.now()}`,
-      type: event_type,
-      timestamp: Date.now(),
-      data: payload,
-    };
-
-    // Trigger webhook
-    const logId = await webhookService.createWebhookLog(webhook.id!, event_type, payload);
-    const webhookDeliveryEngine = await import('../../services/webhookDeliveryEngine');
+    const { type, active } = req.query;
     
-    await webhookDeliveryEngine.default.deliverWebhook(webhook, testEvent, logId);
+    let whereClause = 'WHERE user_id = $1';
+    const params: any[] = [userId];
+    let paramIndex = 2;
 
-    return res.json({ success: true, message: 'Webhook triggered successfully' });
-  } catch (error) {
-    console.error('Error triggering webhook:', error);
-    return res.status(500).json({ error: 'Failed to trigger webhook' });
-  }
-});
-
-/**
- * GET /api/webhooks/:id/logs
- * Get webhook delivery logs
- */
-router.get('/:id/logs', async (req: AuthRequest, res: Response) => {
-  try {
-    const userId = req.user!.id;
-    const webhookId = req.params.id as string;
-    const { page = 1, limit = 20 } = req.query;
-
-    // Verify ownership
-    const webhook = await webhookService.getWebhookById(webhookId);
-    if (!webhook || webhook.user_id !== userId) {
-      return res.status(404).json({ error: 'Webhook not found' });
+    if (type) {
+      whereClause += ` AND type = $${paramIndex++}`;
+      params.push(type);
     }
 
-    const logs = await webhookService.getWebhookLogs(
-      webhookId,
-      parseInt(page as string),
-      parseInt(limit as string)
+    if (active !== undefined) {
+      whereClause += ` AND active = $${paramIndex++}`;
+      params.push(active === 'true');
+    }
+
+    const result = await query(
+      `SELECT * FROM webhooks ${whereClause} ORDER BY created_at DESC`,
+      params
     );
 
-    return res.json({ success: true, data: logs });
-  } catch (error) {
-    console.error('Error fetching webhook logs:', error);
-    return res.status(500).json({ error: 'Failed to fetch webhook logs' });
+    res.json({
+      success: true,
+      data: result.rows,
+    });
+  } catch (error: any) {
+    console.error('Error listing webhooks:', error);
+    res.status(500).json({ success: false, error: 'Failed to list webhooks' });
   }
 });
 
-/**
- * POST /api/webhooks/instagram/callback
- * Instagram Graph API webhook callback (public endpoint, no auth)
- */
-router.post('/instagram/callback', async (req: any, res: Response) => {
+// POST /api/webhooks - Create new webhook
+router.post('/', async (req: Request, res: Response) => {
   try {
-    const signature = req.headers['x-hub-signature-256'] as string;
-    const payload = JSON.stringify(req.body);
+    const userId = (req as any).user?.id;
 
-    // TODO: Verify signature (need to store Instagram webhook secrets)
-    // For now, we'll accept all webhooks
-
-    const { entry } = req.body;
-
-    if (!entry || !Array.isArray(entry)) {
-      return res.status(400).json({ error: 'Invalid webhook payload' });
+    if (!userId) {
+      return res.status(401).json({ success: false, error: 'Unauthorized' });
     }
 
-    // Process each entry
-    for (const item of entry) {
-      const { id, changes, time } = item;
+    const { name, type, url, events, retry_config } = req.body;
 
-      if (!changes || !Array.isArray(changes)) {
-        continue;
-      }
-
-      for (const change of changes) {
-        const { field, value } = change;
-
-        // Handle different webhook events
-        if (field === 'messages') {
-          // New DM received
-          // TODO: Extract user_id from webhook data and trigger dm.received event
-          console.log('New DM received:', value);
-        } else if (field === 'comments') {
-          // New comment received
-          // TODO: Extract user_id from webhook data and trigger comment.created event
-          console.log('New comment received:', value);
-        } else if (field === 'mentions') {
-          // New mention
-          // TODO: Extract user_id from webhook data and trigger mention.created event
-          console.log('New mention received:', value);
-        } else if (field === 'likes') {
-          // New like
-          // TODO: Extract user_id from webhook data and trigger like.added event
-          console.log('New like received:', value);
-        }
-      }
+    if (!name || !type || !url) {
+      return res.status(400).json({ success: false, error: 'Name, type, and URL are required' });
     }
 
-    return res.status(200).send('OK');
-  } catch (error) {
-    console.error('Error processing Instagram webhook:', error);
-    // Always return 200 to Instagram to avoid retries
-    return res.status(200).send('OK');
+    if (!events || events.length === 0) {
+      return res.status(400).json({ success: false, error: 'Events list is required' });
+    }
+
+    const crypto = require('crypto');
+    const secret = `wh_${crypto.randomBytes(16).toString('hex')}_${Date.now().toString(36)}`;
+
+    const result = await query(
+      `INSERT INTO webhooks (user_id, name, type, url, secret, events, active, retry_config, total_triggers, success_count, failure_count, created_at, updated_at)
+       VALUES ($1, $2, $3, $4, $5, $6, $7, $8, 9, 0, 0, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP)
+       RETURNING *`,
+      [userId, name, type, url, secret, JSON.stringify(events), JSON.stringify(retry_config || { max_retries: 3, retry_delay: 60 })]
+    );
+
+    res.status(201).json({
+      success: true,
+      data: {
+        ...result.rows[0],
+        secret, // Only show secret on creation
+      },
+    });
+  } catch (error: any) {
+    console.error('Error creating webhook:', error);
+    res.status(500).json({ success: false, error: 'Failed to create webhook' });
   }
 });
 
-/**
- * GET /api/webhooks/instagram/callback
- * Instagram Graph API webhook verification (public endpoint, no auth)
- */
-router.get('/instagram/callback', (req: any, res: Response) => {
-  const { 'hub.mode': mode, 'hub.verify_token': verifyToken, 'hub.challenge': challenge } = req.query;
+// GET /api/webhooks/:id - Get webhook details
+router.get('/:id', async (req: Request, res: Response) => {
+  try {
+    const userId = (req as any).user?.id;
+    const { id } = req.params;
 
-  if (mode === 'subscribe' && verifyToken === process.env.INSTAGRAM_WEBHOOK_VERIFY_TOKEN) {
-    console.log('Instagram webhook verified');
-    return res.status(200).send(challenge);
+    const result = await query(
+      'SELECT * FROM webhooks WHERE id = $1 AND user_id = $2',
+      [id, userId]
+    );
+
+    if (result.rows.length === 0) {
+      return res.status(404).json({ success: false, error: 'Webhook not found' });
+    }
+
+    const webhook = result.rows[0];
+    
+    res.json({
+      success: true,
+      data: webhook,
+    });
+  } catch (error: any) {
+    console.error('Error getting webhook:', error);
+    res.status(500).json({ success: false, error: 'Failed to get webhook' });
   }
+});
 
-  return res.status(403).send('Forbidden');
+// PUT /api/webhooks/:id - Update webhook
+router.put('/:id', async (req: Request, res: Response) => {
+  try {
+    const userId = (req as any).user?.id;
+    const { id } = req.params;
+    const { name, url, events, active, retry_config } = req.body;
+
+    const result = await query(
+      'SELECT * FROM webhooks WHERE id = $1 AND user_id = $2',
+      [id, userId]
+    );
+
+    if (result.rows.length === 0) {
+      return res.status(404).json({ success: false, error: 'Webhook not found' });
+    }
+
+    const updates: string[] = [];
+    const values: any[] = [];
+    let paramIndex = 3;
+
+    if (name !== undefined) {
+      updates.push(`name = $${paramIndex++}`);
+      values.push(name);
+    }
+    if (url !== undefined) {
+      updates.push(`url = $${paramIndex++}`);
+      values.push(url);
+    }
+    if (events !== undefined) {
+      updates.push(`events = $${paramIndex++}`);
+      values.push(JSON.stringify(events));
+    }
+    if (active !== undefined) {
+      updates.push(`active = $${paramIndex++}`);
+      values.push(active);
+    }
+    if (retry_config !== undefined) {
+      updates.push(`retry_config = $${paramIndex++}`);
+      values.push(JSON.stringify(retry_config));
+    }
+
+    values.push(id);
+    const queryStr = `UPDATE webhooks SET ${updates.join(', ')}, updated_at = CURRENT_TIMESTAMP WHERE id = $${paramIndex}`;
+
+    const updateResult = await query(queryStr, values);
+
+    res.json({
+      success: true,
+      data: updateResult.rows[0],
+    });
+  } catch (error: any) {
+    console.error('Error updating webhook:', error);
+    res.status(500).json({ success: false, error: 'Failed to update webhook' });
+  }
+});
+
+// DELETE /api/webhooks/:id - Delete webhook
+router.delete('/:id', async (req: Request, res: Response) => {
+  try {
+    const userId = (req as any).user?.id;
+    const { id } = req.params;
+
+    const result = await query(
+      'SELECT * FROM webhooks WHERE id = $1 AND user_id = $2',
+      [id, userId]
+    );
+
+    if (result.rows.length === 0) {
+      return res.status(404).json({ success: false, error: 'Webhook not found' });
+    }
+
+    await query('DELETE FROM webhook_logs WHERE webhook_id = $1', [id]);
+    await query('DELETE FROM webhooks WHERE id = $1', [id]);
+
+    res.json({
+      success: true,
+      message: 'Webhook deleted successfully',
+    });
+  } catch (error: any) {
+    console.error('Error deleting webhook:', error);
+    res.status(500).json({ success: false, error: 'Failed to delete webhook' });
+  }
+});
+
+// POST /api/webhooks/:id/trigger - Manually trigger webhook
+router.post('/:id/trigger', async (req: Request, res: Response) => {
+  try {
+    const userId = (req as any).user?.id;
+    const { id } = req.params;
+    const { payload } = req.body;
+
+    const result = await query(
+      'SELECT * FROM webhooks WHERE id = $1 AND user_id = $2',
+      [id, userId]
+    );
+
+    if (result.rows.length === 0) {
+      return res.status(404).json({ success: false, error: 'Webhook not found' });
+    }
+
+    const webhook = result.rows[0];
+
+    if (!webhook.active) {
+      return res.status(400).json({ success: false, error: 'Webhook is not active' });
+    }
+
+    await query(
+      `INSERT INTO webhook_logs (webhook_id, event_type, payload, status, created_at)
+       VALUES ($1, $2, $3, 'pending', CURRENT_TIMESTAMP)
+       RETURNING *`,
+      [id, 'manual_trigger', JSON.stringify(payload || {})]
+    );
+
+    await query(
+      `UPDATE webhooks SET total_triggers = total_triggers + 1, last_triggered_at = CURRENT_TIMESTAMP WHERE id = $1`,
+      [id]
+    );
+
+    res.json({
+      success: true,
+      message: 'Webhook triggered successfully',
+    });
+  } catch (error: any) {
+    console.error('Error triggering webhook:', error);
+    res.status(500).json({ success: false, error: 'Failed to trigger webhook' });
+  }
+});
+
+// GET /api/webhooks/:id/logs - Get webhook logs
+router.get('/:id/logs', async (req: Request, res: Response) => {
+  try {
+    const userId = (req as any).user?.id;
+    const { id } = req.params;
+    const { limit = 50, status } = req.query;
+
+    let whereClause = 'WHERE webhook_id = $1';
+    const params: any[] = [id];
+    let paramIndex = 2;
+
+    if (status) {
+      whereClause += ` AND status = $${paramIndex++}`;
+      params.push(status);
+    }
+
+    const result = await query(
+      `SELECT * FROM webhook_logs ${whereClause} ORDER BY created_at DESC LIMIT $${paramIndex++}`,
+      params
+    );
+
+    const countResult = await query(
+      `SELECT COUNT(*) as total FROM webhook_logs ${whereClause}`,
+      params
+    );
+
+    res.json({
+      success: true,
+      data: result.rows,
+      pagination: {
+        limit: Number(limit),
+        total: parseInt(countResult.rows[0].total),
+        page: 1,
+        has_more: result.rows.length === Number(limit),
+      },
+    });
+  } catch (error: any) {
+    console.error('Error getting webhook logs:', error);
+    res.status(500).json({ success: false, error: 'Failed to get webhook logs' });
+  }
+});
+
+// POST /api/webhooks/:id/test - Test webhook
+router.post('/:id/test', async (req: Request, res: Response) => {
+  try {
+    const userId = (req as any).user?.id;
+    const { id } = req.params;
+
+    const result = await query(
+      'SELECT * FROM webhooks WHERE id = $1 AND user_id = $2',
+      [id, userId]
+    );
+
+    if (result.rows.length === 0) {
+      return res.status(404).json({ success: false, error: 'Webhook not found' });
+    }
+
+    const webhook = result.rows[0];
+
+    const testPayload = {
+      event: 'test',
+      timestamp: new Date().toISOString(),
+      webhook_id: webhook.id,
+      webhook_name: webhook.name,
+      source: 'manual_test',
+    };
+
+    await query(
+      `INSERT INTO webhook_logs (webhook_id, event_type, payload, status, created_at)
+       VALUES ($1, 'test_event', $2, 'sent', CURRENT_TIMESTAMP)
+       RETURNING *`,
+      [id, JSON.stringify(testPayload)]
+    );
+
+    res.json({
+      success: true,
+      message: 'Test payload sent to webhook',
+      data: {
+        test_payload: testPayload,
+        webhook_url: webhook.url,
+      },
+    });
+  } catch (error: any) {
+    console.error('Error testing webhook:', error);
+    res.status(500).json({ success: false, error: 'Failed to test webhook' });
+  }
 });
 
 export default router;

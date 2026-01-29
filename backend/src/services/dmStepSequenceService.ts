@@ -168,11 +168,17 @@ class DMStepSequenceService {
         }
       }
 
-      try {
-        const campaign = await dmCampaignService.getCampaignById(campaignId);
-
-        if (!campaign) {
-          throw new Error('Campaign not found');
+      const campaign = await dmCampaignService.getCampaignById(campaignId);
+    if (!campaign) {
+      return [{
+        success: false,
+        step_order: 1,
+        next_step_order: null,
+        branch_taken: 'error',
+        error: 'Campaign not found',
+      } as DMStepExecutionResult];
+    }
+    try {
         }
 
         const accessToken = await this.getAccessToken(campaign.instagram_account_id);
