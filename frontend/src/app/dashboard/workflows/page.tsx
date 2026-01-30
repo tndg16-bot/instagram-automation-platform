@@ -234,6 +234,23 @@ export default function WorkflowsListPage() {
               <Link href="/dashboard/workflows" className="text-gray-900 font-medium">
                 Automation
               </Link>
+              <div className="flex items-center space-x-4 ml-8 border-l border-gray-300">
+                <Link href="/dashboard/workflows/ai-features/nl-generator" className="text-indigo-600 hover:text-indigo-900 font-medium">
+                  🤖 AI生成
+                </Link>
+                <Link href="/dashboard/workflows/ai-features/decisions" className="text-gray-600 hover:text-gray-900">
+                  意思決定
+                </Link>
+                <Link href="/dashboard/workflows/ai-features/recommendations" className="text-gray-600 hover:text-gray-900">
+                  推奨
+                </Link>
+                <Link href="/dashboard/workflows/ai-ai-optimizations" className="text-gray-600 hover:text-gray-900">
+                  最適化
+                </Link>
+                <Link href="/dashboard/workflows/ai-features/conversations" className="text-gray-600 hover:text-gray-900">
+                  会話文脈
+                </Link>
+              </div>
             </div>
             <div className="flex items-center space-x-4">
               <button
