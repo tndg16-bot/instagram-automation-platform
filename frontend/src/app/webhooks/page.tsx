@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import Link from 'next/link';
 
 export default function WebhooksPage() {
@@ -13,7 +13,6 @@ export default function WebhooksPage() {
     url: '',
     events: ['post', 'comment', 'follow'],
     active: true,
-  });
   });
 
   useEffect(() => {
@@ -92,10 +91,11 @@ export default function WebhooksPage() {
 
       const data = await response.json();
       if (data.success) {
-        setWebhooks(webhooks.map((w: any) => 
+        setWebhooks(webhooks.map((w: any) =>
           w.id === webhookId ? { ...w, active: currentStatus } : w
         ));
-      } catch (error) {
+      }
+    } catch (error) {
       console.error('Error toggling webhook:', error);
       alert('Failed to toggle webhook');
     }
@@ -148,7 +148,7 @@ export default function WebhooksPage() {
         alert(data.error || 'Failed to delete webhook');
       }
     } catch (error) {
-      console.error('Error deleting webhook:', error}
+      console.error('Error deleting webhook:', error);
       alert('Failed to delete webhook');
     }
   };
@@ -426,6 +426,7 @@ export default function WebhooksPage() {
                       </>
                     )}
                   </div>
+                </div>
 
                 <div className="flex justify-end space-x-3 pt-4">
                   <button
@@ -528,7 +529,7 @@ export default function WebhooksPage() {
                       <span className="ml-2">
                         {selectedWebhook.total_triggers > 0
                           ? `${Math.round((selectedWebhook.failure_count / selectedWebhook.total_triggers) * 100)}%`
-                          : 'N/A'
+                          : 'N/A'}
                       </span>
                     </div>
                   </div>
@@ -579,8 +580,16 @@ export default function WebhooksPage() {
                   </div>
                   <div className="flex items-center justify-between">
                     <span className="text-sm text-gray-600">2026-01-28 14:25:00</span>
-                      <span className="text-sm text-gray-400">opened</span>
-                    </div>
+                    <span className="text-sm text-gray-400">opened</span>
+                  </div>
+                  <div className="flex items-center justify-between">
+                    <span className="text-sm text-gray-600">2026-01-28 14:20:00</span>
+                    <span className="text-sm text-gray-400">clicked</span>
+                  </div>
+                  <div className="flex items-center justify-between">
+                    <span className="text-sm text-gray-600">2026-01-28 14:15:00</span>
+                    <span className="text-sm text-gray-400">failed</span>
+                  </div>
                   </div>
                   <div className="flex items-center justify-between">
                     <span className="text-sm text-gray-600">2026-01-28 14:20:00</span>
@@ -588,8 +597,9 @@ export default function WebhooksPage() {
                   </div>
                   <div className="flex items-center justify-between">
                     <span className="text-sm text-gray-600">2026-01-28 14:15:00</span>
-                      <span className="text-sm text-gray-400">failed</span>
+                    <span className="text-sm text-gray-400">failed</span>
                   </div>
+                </div>
                 </div>
                 </div>
               </div>
