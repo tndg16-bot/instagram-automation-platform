@@ -101,3 +101,14 @@ app.use((err: Error, req: Request, res: Response, next: NextFunction) => {
 });
 
 export default app;
+// Add new routes
+import webhooksOutboundRoutes from './api/routes/webhooks-outbound';
+import zapierRoutes from './api/routes/zapier';
+import makeRoutes from './api/routes/make';
+import n8nRoutes from './api/routes/n8n';
+
+// ... existing routes ...
+app.use('/api/webhooks/outbound', webhooksOutboundRoutes);
+app.use('/api/integrations/zapier', zapierRoutes);
+app.use('/api/integrations/make', makeRoutes);
+app.use('/api/integrations/n8n', n8nRoutes);

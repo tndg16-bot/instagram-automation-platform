@@ -1,0 +1,23 @@
+@echo off
+REM Phase 4 Issues (Issues #21-26) - API Integration
+echo Creating Phase 4 issues...
+
+echo Creating Issue #21: Webhook Sending Feature...
+gh issue create --title "[Phase4] Webhook送信機能" --body "## 概要%%0AWebhook送信機能を開発する。%%0A%%0A## タスク%%0A%%0A### タスク21-1: Webhook管理%%0A- [ ] サブタスク21-1-1: エンドポイント管理%%0A  - [ ] URL設定%%0A  - [ ] イベント選択%%0A  - [ ] ペイロードカスタム%%0A%%0A- [ ] サブタスク21-1-2: 送信エンジン%%0A  - [ ] HTTP POST実装%%0A  - [ ] 再試行ロジック%%0A  - [ ] シークレット認証%%0A%%0A### タスク21-2: Webhook UI%%0A- [ ] サブタスク21-2-1: Webhook設定画面%%0A  - [ ] エンドポイント登録フォーム%%0A  - [ ] テスト送信ボタン%%0A  - [ ] ログ確認%%0A%%0A- [ ] サブタスク21-2-2: ログ画面%%0A  - [ ] 送信履歴%%0A  - [ ] ステータス（成功/失敗/再試行）%%0A  - [ ] エラー詳細" --label "phase4,backend,frontend,webhook,api"
+
+echo Creating Issue #22: Zapier Integration...
+gh issue create --title "[Phase4] Zapier連携" --body "## 概要%%0AZapier連携機能を開発する。%%0A%%0A## タスク%%0A%%0A### タスク22-1: Zapier App作成%%0A- [ ] サブタスク22-1-1: 認証実装%%0A  - [ ] OAuthフロー%%0A  - [ ] APIキー発行%%0A  - [ ] Zapierプラットフォーム登録%%0A%%0A- [ ] サブタスク22-1-2: トリガー定義%%0A  - [ ] 新規コメント%%0A  - [ ] 新規フォロワー%%0A  - [ ] DM受信%%0A%%0A- [ ] サブタスク22-1-3: アクション定義%%0A  - [ ] DM送信%%0A  - [ ] コメント返信%%0A  - [ ] 投稿作成%%0A%%0A### タスク22-2: ドキュメント・申請%%0A- [ ] サブタスク22-2-1: Zapierマーケットプレイス登録%%0A  - [ ] アプリ説明作成%%0A  - [ ] 画像・動画準備%%0A  - [ ] 審査提出%%0A%%0A- [ ] サブタスク22-2-2: テスト・修正%%0A  - [ ] ユーザーテスト%%0A  - [ ] フィードバック対応%%0A  - [ ] 不具合修正" --label "phase4,backend,api,integration,zapier"
+
+echo Creating Issue #23: Make Integration...
+gh issue create --title "[Phase4] Make連携" --body "## 概要%%0AMake（旧Integromat）連携機能を開発する。%%0A%%0A## タスク%%0A%%0A### タスク23-1: Make App作成%%0A- [ ] サブタスク23-1-1: 認証%%0A  - [ ] OAuth 2.0%%0A  - [ ] スコープ定義%%0A  - [ ] トークン管理%%0A%%0A- [ ] サブタスク23-1-2: モジュール実装%%0A  - [ ] トリガーモジュール%%0A  - [ ] アクションモジュール%%0A  - [ ] レスポンス形式%%0A%%0A### タスク23-2: テスト・リリース%%0A- [ ] サブタスク23-2-1: Make内テスト%%0A  - [ ] 接続テスト%%0A  - [ ] データフローテスト%%0A%%0A- [ ] サブタスク23-2-2: Makeマーケット登録%%0A  - [ ] App説明%%0A  - [ ] 利用ガイド%%0A  - [ ] 審査対応" --label "phase4,backend,api,integration,make"
+
+echo Creating Issue #24: n8n Integration...
+gh issue create --title "[Phase4] n8n連携" --body "## 概要%%0An8n連携機能を開発する。%%0A%%0A## タスク%%0A%%0A### タスク24-1: n8nノード開発%%0A- [ ] サブタスク24-1-1: ノード定義%%0A  - [ ] JSONスキーマ%%0A  - [ ] パラメータ定義%%0A  - [ ] アイコン作成%%0A%%0A- [ ] サブタスク24-1-2: 認証・接続%%0A  - [ ] Credentialノード%%0A  - [ ] API呼び出しロジック%%0A  - [ ] エラーハンドリング%%0A%%0A### タスク24-2: n8nコミュニティ%%0A- [ ] サブタスク24-2-1: npmパッケージ公開%%0A  - [ ] パッケージ設定%%0A  - [ ] README作成%%0A  - [ ] MITライセンス%%0A%%0A- [ ] サブタスク24-2-2: ドキュメント%%0A  - [ ] n8n用ドキュメント%%0A  - [ ] 使用例%%0A  - [ ] トラブルシューティング" --label "phase4,backend,api,integration,n8n"
+
+echo Creating Issue #25: Meta Tech Provider Certification...
+gh issue create --title "[Phase4] Meta Tech Provider認定" --body "## 概要%%0AMeta Tech Provider認定を取得する。%%0A%%0A## タスク%%0A%%0A### タスク25-1: 審査準備%%0A- [ ] サブタスク25-1-1: セキュリティドキュメント%%0A  - [ ] データ保護方針%%0A  - [ ] 認証・認可仕様%%0A  - [ ] 事故対応フロー%%0A%%0A- [ ] サブタスク25-1-2: ビジネスドキュメント%%0A  - [ ] ユーザー利用規約%%0A  - [ ] プライバシーポリシー%%0A  - [ ] サービスレベル合意%%0A%%0A### タスク25-2: 申請・面接%%0A- [ ] サブタスク25-2-1: Meta Partner Portal申請%%0A  - [ ] アプリケーション登録%%0A  - [ ] ビジネス情報入力%%0A  - [ ] 書類提出%%0A%%0A- [ ] サブタスク25-2-2: 面接・対応%%0A  - [ ] 技術面接準備%%0A  - [ ] ソースコード審査対応%%0A  - [ ] 不具合修正%%0A%%0A### タスク25-3: 認定後対応%%0A- [ ] サブタスク25-3-1: Tech Providerバッジ表示%%0A  - [ ] Webサイト表示%%0A  - [ ] マーケティング活用%%0A  - [ ] ロゴ利用%%0A%%0A- [ ] サブタスク25-3-2: API制限緩和申請%%0A  - [ ] レート制限引き上げ%%0A  - [ ] 追加機能申請%%0A  - [ ] レビュー対応" --label "phase4,documentation,certification,meta"
+
+echo Creating Issue #26: v3.0 Release...
+gh issue create --title "[Phase4] v3.0リリース" --body "## 概要%%0Av3.0リリースを実施する。%%0A%%0A## タスク%%0A%%0A### タスク26-1: API統合テスト%%0A- [ ] サブタスク26-1-1: Webhookテスト%%0A  - [ ] 全イベント送信テスト%%0A  - [ ] 外部サービス連携テスト%%0A%%0A- [ ] サブタスク26-1-2: 外部ツール動作確認%%0A  - [ ] Zapier/Make/n8n%%0A  - [ ] 実際ユーケース%%0A  - [ ] パフォーマンス確認%%0A%%0A### タスク26-2: セキュリティ強化%%0A- [ ] サブタスク26-2-1: APIセキュリティ%%0A  - [ ] レート制限強化%%0A  - [ ] IP制限%%0A  - [ ] mTLS対応%%0A%%0A- [ ] サブタスク26-2-2: 監査対応%%0A  - [ ] 監査ログ充実%%0A  - [ ] 監査レポート作成%%0A  - [ ] 外部監査対応%%0A%%0A### タスク26-3: リリース%%0A- [ ] サブタスク26-3-1: v3.0リリース%%0A  - [ ] API連携機能アナウンス%%0A  - [ ] Tech Provider表示%%0A  - [ ] パートナーシップ開始%%0A%%0A- [ ] サブタスク26-3-2: 販売促進%%0A  - [ ] パートナー企業提案%%0A  - [ ] ケーススタディ公開%%0A  - [ ] ウェビナー開催" --label "phase4,api,security,marketing,release"
+
+echo Phase 4 issues created!
