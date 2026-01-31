@@ -137,6 +137,127 @@ class InstagramGraphClient {
     }
   }
 
+  async unfollowUser(userId: string) {
+    try {
+      await this.client.delete(`/${config.instagram.apiVersion}/me/following`, {
+        data: { user_id: userId },
+      });
+    } catch (error) {
+      this.handleError(error, 'unfollowUser');
+      throw error;
+    }
+  }
+
+  async getAccountInfo() {
+    try {
+      const response = await this.client.get(
+        `/${config.instagram.apiVersion}/me?fields=id,username,account_type,media_count,followers_count,follows_count`
+      );
+      return response.data;
+    } catch (error) {
+      this.handleError(error, 'getAccountInfo');
+      throw error;
+    }
+  }
+
+  async getFollowers(limit: number = 50) {
+    try {
+      const response = await this.client.get(
+        `/${config.instagram.apiVersion}/me/followers?limit=${limit}`
+      );
+      return response.data.data;
+    } catch (error) {
+      this.handleError(error, 'getFollowers');
+      throw error;
+    }
+  }
+
+  async getFollowing(limit: number = 50) {
+    try {
+      const response = await this.client.get(
+        `/${config.instagram.apiVersion}/me/following?limit=${limit}`
+      );
+      return response.data.data;
+    } catch (error) {
+      this.handleError(error, 'getFollowing');
+      throw error;
+    }
+  }
+
+  async getRecentMedia(limit: number = 25) {
+    try {
+      const response = await this.client.get(
+        `/${config.instagram.apiVersion}/me/media?fields=id,caption,media_type,media_url,thumbnail_url,permalink,timestamp,like_count,comments_count&limit=${limit}`
+      );
+      return response.data.data;
+    } catch (error) {
+      this.handleError(error, 'getRecentMedia');
+      throw error;
+    }
+  }
+
+  async postStory(imageUrl: string) {
+    try {
+      const response = await this.client.post(`/${config.instagram.apiVersion}/me/stories`, {
+        image_url: imageUrl,
+      });
+      return response.data.id;
+    } catch (error) {
+      this.handleError(error, 'postStory');
+      throw error;
+    }
+  }
+
+  async postReel(videoUrl: string, caption: string) {
+    try {
+      const response = await this.client.post(`/${config.instagram.apiVersion}/me/reels`, {
+        video_url: videoUrl,
+        caption,
+        share_to_feed: true,
+      });
+      return response.data.id;
+    } catch (error) {
+      this.handleError(error, 'postReel');
+      throw error;
+    }
+  }
+
+  async getUserMedia(userId: string, limit: number = 25) {
+    try {
+      const response = await this.client.get(
+        `/${config.instagram.apiVersion}/${userId}/media?fields=id,caption,media_type,media_url,permalink,timestamp&limit=${limit}`
+      );
+      return response.data.data;
+    } catch (error) {
+      this.handleError(error, 'getUserMedia');
+      throw error;
+    }
+  }
+
+  async searchUsers(query: string, limit: number = 50) {
+    try {
+      const response = await this.client.get(
+        `/${config.instagram.apiVersion}/ig_hashtag_search?q=${encodeURIComponent(query)}&limit=${limit}`
+      );
+      return response.data.data;
+    } catch (error) {
+      this.handleError(error, 'searchUsers');
+      throw error;
+    }
+  }
+
+  async getInsights(metric: string, period: string = 'day') {
+    try {
+      const response = await this.client.get(
+        `/${config.instagram.apiVersion}/me/insights?metric=${metric}&period=${period}`
+      );
+      return response.data.data;
+    } catch (error) {
+      this.handleError(error, 'getInsights');
+      throw error;
+    }
+  }
+
   private handleError(error: any, operation: string): void {
     if (error && error.response) {
       const status = error.response.status;
