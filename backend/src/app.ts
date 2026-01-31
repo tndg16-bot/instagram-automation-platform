@@ -17,6 +17,9 @@ import bookingsRoutes from './api/routes/bookings';
 import postsRoutes from './api/routes/posts';
 import analyticsRoutes from './api/routes/analytics';
 import webhooksRoutes from './api/routes/webhooks';
+import membershipRoutes from './api/routes/membership';
+import communityRoutes from './api/routes/community';
+import eventsRoutes from './api/routes/events';
 
 dotenv.config();
 
@@ -75,6 +78,9 @@ app.use('/api/analytics', analyticsRoutes);
 app.use('/api/webhooks', webhooksRoutes);
 app.use('/api/orders', ordersRoutes);
 app.use('/api/bookings', bookingsRoutes);
+app.use('/api/membership', membershipRoutes);
+app.use('/api/community', communityRoutes);
+app.use('/api/events', eventsRoutes);
 
 // Health check
 app.get('/health', (req: Request, res: Response) => {
