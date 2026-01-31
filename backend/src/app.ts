@@ -20,6 +20,14 @@ import webhooksRoutes from './api/routes/webhooks';
 import membershipRoutes from './api/routes/membership';
 import communityRoutes from './api/routes/community';
 import eventsRoutes from './api/routes/events';
+import webhooksOutboundRoutes from './api/routes/webhooks-outbound';
+import zapierRoutes from './api/routes/zapier';
+import makeRoutes from './api/routes/make';
+import n8nRoutes from './api/routes/n8n';
+import autoLikeRoutes from './api/routes/auto-like';
+import autoFollowRoutes from './api/routes/auto-follow';
+import scheduledPostsRoutes from './api/routes/scheduled-posts';
+import tenantsRoutes from './api/routes/tenants';
 
 dotenv.config();
 
@@ -81,6 +89,14 @@ app.use('/api/bookings', bookingsRoutes);
 app.use('/api/membership', membershipRoutes);
 app.use('/api/community', communityRoutes);
 app.use('/api/events', eventsRoutes);
+app.use('/api/webhooks/outbound', webhooksOutboundRoutes);
+app.use('/api/integrations/zapier', zapierRoutes);
+app.use('/api/integrations/make', makeRoutes);
+app.use('/api/integrations/n8n', n8nRoutes);
+app.use('/api/auto/like', autoLikeRoutes);
+app.use('/api/auto/follow', autoFollowRoutes);
+app.use('/api/scheduled-posts', scheduledPostsRoutes);
+app.use('/api/tenants', tenantsRoutes);
 
 // Health check
 app.get('/health', (req: Request, res: Response) => {
@@ -101,14 +117,3 @@ app.use((err: Error, req: Request, res: Response, next: NextFunction) => {
 });
 
 export default app;
-// Add new routes
-import webhooksOutboundRoutes from './api/routes/webhooks-outbound';
-import zapierRoutes from './api/routes/zapier';
-import makeRoutes from './api/routes/make';
-import n8nRoutes from './api/routes/n8n';
-
-// ... existing routes ...
-app.use('/api/webhooks/outbound', webhooksOutboundRoutes);
-app.use('/api/integrations/zapier', zapierRoutes);
-app.use('/api/integrations/make', makeRoutes);
-app.use('/api/integrations/n8n', n8nRoutes);
