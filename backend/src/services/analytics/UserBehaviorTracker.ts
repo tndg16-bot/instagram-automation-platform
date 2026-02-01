@@ -6,9 +6,9 @@ class UserBehaviorTracker {
       const { page_url, page_title, element_id, element_type, device_info, location_info } = eventData;
 
       await query(
-        \`INSERT INTO user_behavior_analytics (user_id, session_id, event_type, page_url, page_title, element_id, element_type, metadata, device_info, location_info, timestamp, created_at)
+        `INSERT INTO user_behavior_analytics (user_id, session_id, event_type, page_url, page_title, element_id, element_type, metadata, device_info, location_info, timestamp, created_at)
          VALUES (\$1, \$2, \$3, \$4, \$5, \$6, \$7, \$8, \$9, \$10, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP)
-         RETURNING *\`,
+         RETURNING *`,
         [userId, eventData.session_id || null, eventType, page_url || null, page_title || null, element_id || null, element_type || null, JSON.stringify(eventData), JSON.stringify(device_info || {}), JSON.stringify(location_info || {})]
       );
     } catch (error: any) {
@@ -24,19 +24,19 @@ class UserBehaviorTracker {
       let paramIndex = 4;
 
       if (eventTypes && eventTypes.length > 0) {
-        whereClause += \` AND event_type = ANY(\$\${paramIndex++})\`;
+        whereClause += ` AND event_type = ANY(\$\${paramIndex++})`;
         params.push(eventTypes);
       }
 
       const result = await query(
-        \`SELECT 
+        `SELECT 
            COUNT(*) as total_events,
            COUNT(DISTINCT session_id) as unique_sessions,
            AVG(CASE WHEN event_type = 'page_view' THEN 1 ELSE 0 END) as page_views,
            COUNT(*) FILTER (WHERE event_type = 'click') as clicks,
            COUNT(*) FILTER (WHERE event_type = 'scroll') as scrolls,
            COUNT(*) FILTER (WHERE event_type = 'form_submit') as form_submits
-       FROM user_behavior_analytics \${whereClause}\`,
+       FROM user_behavior_analytics \${whereClause}`,
         params
       );
 

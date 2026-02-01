@@ -4,7 +4,7 @@ class MultiAccountManager {
   async getAccounts(userId: string): Promise<any> {
     try {
       const result = await query(
-        \`SELECT * FROM instagram_accounts WHERE user_id = \$1 ORDER BY is_default DESC, created_at DESC\`,
+        `SELECT * FROM instagram_accounts WHERE user_id = \$1 ORDER BY is_default DESC, created_at DESC`,
         [userId]
       );
 

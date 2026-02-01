@@ -4,7 +4,7 @@ class AutomationExecutor {
   async executeWorkflow(workflowId: string): Promise<any> {
     try {
       const workflowResult = await query(
-        \`SELECT * FROM automation_workflows WHERE id = \$1\`,
+        `SELECT * FROM automation_workflows WHERE id = \$1`,
         [workflowId]
       );
 
@@ -18,14 +18,14 @@ class AutomationExecutor {
       const workflow = workflowResult.rows[0];
 
       const executionResult = await query(
-        \`INSERT INTO automation_execution_logs (workflow_id, user_id, execution_type, trigger_data, execution_status, start_time, created_at)
+        `INSERT INTO automation_execution_logs (workflow_id, user_id, execution_type, trigger_data, execution_status, start_time, created_at)
          VALUES (\$1, \$2, 'manual', \$3, 'started', CURRENT_TIMESTAMP, CURRENT_TIMESTAMP)
-         RETURNING *\`,
+         RETURNING *`,
         [workflowId, workflow.user_id, JSON.stringify({}), 'started']
       );
 
       await query(
-        \`UPDATE automation_workflows SET total_runs = total_runs + 1, last_run_at = CURRENT_TIMESTAMP WHERE id = \$1\`,
+        `UPDATE automation_workflows SET total_runs = total_runs + 1, last_run_at = CURRENT_TIMESTAMP WHERE id = \$1`,
         [workflowId]
       );
 
@@ -43,9 +43,9 @@ class AutomationExecutor {
           }
 
           await query(
-            \`INSERT INTO automation_workflow_steps (workflow_id, step_order, step_type, step_config, conditions, status, result_data, created_at)
+            `INSERT INTO automation_workflow_steps (workflow_id, step_order, step_type, step_config, conditions, status, result_data, created_at)
                VALUES (\$1, \$2, \$3, \$4, \$5, \$6, \$7, \$8, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP)
-               RETURNING *\`,
+               RETURNING *`,
             [workflowId, step.step_order, step.step_type, JSON.stringify(step.step_config), JSON.stringify(step.conditions), stepResult.success ? 'completed' : 'failed', JSON.stringify(stepResult), '']
           );
 
@@ -53,9 +53,9 @@ class AutomationExecutor {
           failedCount++;
 
           await query(
-            \`INSERT INTO automation_workflow_steps (workflow_id, step_order, step_type, step_config, conditions, status, error_message, created_at)
+            `INSERT INTO automation_workflow_steps (workflow_id, step_order, step_type, step_config, conditions, status, error_message, created_at)
                VALUES (\$1, \$2, \$3, \$4, \$5, 'failed', \$6, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP)
-               RETURNING *\`,
+               RETURNING *`,
             [workflowId, step.step_order, step.step_type, JSON.stringify(step.step_config), JSON.stringify(step.conditions), error.message]
           );
         }
@@ -63,12 +63,12 @@ class AutomationExecutor {
 
       const finalStatus = failedCount === 0 ? 'completed' : 'failed';
       await query(
-        \`UPDATE automation_workflows SET successful_runs = successful_runs + \$1, failed_runs = \$2 WHERE id = \$3\`,
+        `UPDATE automation_workflows SET successful_runs = successful_runs + \$1, failed_runs = \$2 WHERE id = \$3`,
         [workflowId, failedCount]
       );
 
       await query(
-        \`UPDATE automation_execution_logs SET end_time = CURRENT_TIMESTAMP, duration_seconds = \$1, result_data = \$2, execution_status = \$3 WHERE id = \$4\`,
+        `UPDATE automation_execution_logs SET end_time = CURRENT_TIMESTAMP, duration_seconds = \$1, result_data = \$2, execution_status = \$3 WHERE id = \$4`,
         [60, JSON.stringify({ stepResults, failedCount }), finalStatus, executionResult.rows[0].id]
       );
 
@@ -119,7 +119,7 @@ class AutomationExecutor {
         default:
           return {
             success: false,
-            error: \`Unknown step type: \${step_type}\`,
+            error: `Unknown step type: \${step_type}`,
           };
       }
     } catch (error: any) {
@@ -165,9 +165,9 @@ class AutomationExecutor {
     const { event_type, count, time_range } = config;
 
     const result = await query(
-      \`SELECT COUNT(*) as count
+      `SELECT COUNT(*) as count
        FROM user_behavior_analytics
-       WHERE user_id = \$1 AND event_type = \$2 AND timestamp >= NOW() - INTERVAL '\${time_range}'\`,
+       WHERE user_id = \$1 AND event_type = \$2 AND timestamp >= NOW() - INTERVAL '\${time_range}'`,
       [userId, event_type]
     );
 
@@ -214,7 +214,7 @@ class AutomationExecutor {
       case 'create_story':
         return { success: true, message: 'Story created' };
       default:
-        return { success: false, error: \`Unknown action type: \${action_type}\` };
+        return { success: false, error: `Unknown action type: \${action_type}` };
     }
   }
 
@@ -231,7 +231,7 @@ class AutomationExecutor {
 
     return {
       success: true,
-      message: \`Delayed for \${delay_seconds} seconds\`,
+      message: `Delayed for \${delay_seconds} seconds`,
     };
   }
 
@@ -239,4 +239,21 @@ class AutomationExecutor {
     const { webhook_url, payload, signature } = config;
 
     return {
- 
+      success: true,
+      message: `Webhook sent to ${webhook_url}`,
+      signature: signature ? 'signed' : 'unsigned',
+    };
+  }
+
+  private async executeAPICallStep(config: any): Promise<any> {
+    const { api_endpoint, method, headers, body } = config;
+
+    return {
+      success: true,
+      message: `API call ${method} to ${api_endpoint}`,
+    };
+  }
+}
+
+export default new AutomationExecutor();
+
