@@ -26,9 +26,9 @@ class AnalyticsService {
       const { metrics, sample_size, statistical_significance, is_winner } = metrics;
 
       const result = await query(
-        \`INSERT INTO ab_test_results (test_id, variant_id, user_id, campaign_id, metrics, sample_size, statistical_significance, is_winner, timestamp, created_at)
+        `INSERT INTO ab_test_results (test_id, variant_id, user_id, campaign_id, metrics, sample_size, statistical_significance, is_winner, timestamp, created_at)
          VALUES (\$1, \$2, \$3, \$4, \$5, \$6, \$7, \$8, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP)
-         RETURNING *\`,
+         RETURNING *`,
         [testId, variantId, userId, campaignId, JSON.stringify(metrics), sample_size, statistical_significance, is_winner]
       );
 
@@ -42,10 +42,10 @@ class AnalyticsService {
   async aggregateAnalytics(userId: string, metricType: string, timeRange: string, startDate: Date, endDate: Date): Promise<any> {
     try {
       const result = await query(
-        \`SELECT * FROM analytics_aggregation_cache
+        `SELECT * FROM analytics_aggregation_cache
          WHERE user_id = \$1 AND metric_type = \$2 AND time_range = \$3 AND start_date >= \$4 AND end_date <= \$5
          ORDER BY updated_at DESC
-         LIMIT 1\`,
+         LIMIT 1`,
         [userId, metricType, timeRange, startDate, endDate]
       );
 
@@ -68,17 +68,17 @@ class AnalyticsService {
       let paramIndex = 2;
 
       if (eventType) {
-        whereClause += \` AND event_type = \$\${paramIndex++}\`;
+        whereClause += ` AND event_type = \$\${paramIndex++}`;
         params.push(eventType);
       }
 
       if (processed !== undefined) {
-        whereClause += \` AND processed = \$\${paramIndex++}\`;
+        whereClause += ` AND processed = \$\${paramIndex++}`;
         params.push(processed);
       }
 
       const result = await query(
-        \`SELECT * FROM realtime_analytics_events \${whereClause} ORDER BY timestamp DESC LIMIT \$\${paramIndex++}\`,
+        `SELECT * FROM realtime_analytics_events \${whereClause} ORDER BY timestamp DESC LIMIT \$\${paramIndex++}`,
         [...params, limit]
       );
 
@@ -99,15 +99,15 @@ class AnalyticsService {
   async processRealtimeEvents(limit: number = 100): Promise<void> {
     try {
       const result = await query(
-        \`UPDATE realtime_analytics_events
+        `UPDATE realtime_analytics_events
          SET processed = true
          WHERE processed = false
          RETURNING *
-         LIMIT \$1\`,
+         LIMIT \$1`,
         [limit]
       );
 
-      console.log(\`Processed \${result.rows.length} realtime events\`);
+      console.log(`Processed \${result.rows.length} realtime events`);
     } catch (error: any) {
       console.error('Error processing realtime events:', error);
       throw error;
@@ -117,9 +117,9 @@ class AnalyticsService {
   async markEventAsProcessed(eventId: string): Promise<void> {
     try {
       await query(
-        \`UPDATE realtime_analytics_events
+        `UPDATE realtime_analytics_events
          SET processed = true
-         WHERE id = \$1\`,
+         WHERE id = \$1`,
         [eventId]
       );
     } catch (error: any) {

@@ -4,7 +4,7 @@ class AccountSyncService {
   async syncAccount(accountId: string, syncType: string): Promise<any> {
     try {
       const syncResult = await query(
-        \`SELECT * FROM instagram_accounts WHERE id = \$1\`,
+        `SELECT * FROM instagram_accounts WHERE id = \$1`,
         [accountId]
       );
 
@@ -23,23 +23,23 @@ class AccountSyncService {
       let paramIndex = 2;
 
       if (syncedData.profile) {
-        updateFields.push(\`profile_pic_url = \$\${paramIndex++}\`);
-        updateFields.push(\`followers_count = \$\${paramIndex++}\`);
-        updateFields.push(\`following_count = \$\${paramIndex++}\`);
-        updateFields.push(\`posts_count = \$\${paramIndex++}\`);
+        updateFields.push(`profile_pic_url = \$\${paramIndex++}`);
+        updateFields.push(`followers_count = \$\${paramIndex++}`);
+        updateFields.push(`following_count = \$\${paramIndex++}`);
+        updateFields.push(`posts_count = \$\${paramIndex++}`);
         updateValues.push(syncedData.profile.profile_pic_url, syncedData.profile.followers_count, syncedData.profile.following_count, syncedData.profile.posts_count);
       }
 
       if (updateFields.length > 0) {
         updateValues.push(accountId);
-        const queryStr = \`UPDATE instagram_accounts SET \${updateFields.join(', ')}, last_used_at = CURRENT_TIMESTAMP, updated_at = CURRENT_TIMESTAMP WHERE id = \$\${paramIndex++}\`;
+        const queryStr = `UPDATE instagram_accounts SET \${updateFields.join(', ')}, last_used_at = CURRENT_TIMESTAMP, updated_at = CURRENT_TIMESTAMP WHERE id = \$\${paramIndex++}`;
         await query(queryStr, updateValues);
       }
 
       await query(
-        \`INSERT INTO account_sync_status (account_id, sync_type, status, synced_data, last_synced_at, created_at, updated_at)
+        `INSERT INTO account_sync_status (account_id, sync_type, status, synced_data, last_synced_at, created_at, updated_at)
          VALUES (\$1, \$2, 'completed', \$3, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP)
-         RETURNING *\`,
+         RETURNING *`,
         [accountId, syncType, JSON.stringify(syncedData)]
       );
 

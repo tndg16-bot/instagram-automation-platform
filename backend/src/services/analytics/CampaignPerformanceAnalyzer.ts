@@ -4,9 +4,9 @@ class CampaignPerformanceAnalyzer {
   async trackMetric(campaignId: string, userId: string, metricType: string, metricValue: any, segmentTags?: string[], customSegment?: string): Promise<void> {
     try {
       await query(
-        \`INSERT INTO campaign_performance_analytics (campaign_id, user_id, metrics_type, metric_value, metric_count, segment_tags, custom_segment, timestamp, created_at)
+        `INSERT INTO campaign_performance_analytics (campaign_id, user_id, metrics_type, metric_value, metric_count, segment_tags, custom_segment, timestamp, created_at)
          VALUES (\$1, \$2, \$3, \$4, \$5, \$6, \$7, \$8, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP)
-         RETURNING *\`,
+         RETURNING *`,
         [campaignId, userId, metricType, JSON.stringify(metricValue), 1, segmentTags, customSegment]
       );
     } catch (error: any) {
@@ -22,22 +22,22 @@ class CampaignPerformanceAnalyzer {
       let paramIndex = 2;
 
       if (campaignId) {
-        whereClause += \` AND campaign_id = \$\${paramIndex++}\`;
+        whereClause += ` AND campaign_id = \$\${paramIndex++}`;
         params.push(campaignId);
       }
 
       if (startDate) {
-        whereClause += \` AND timestamp >= \$\${paramIndex++}\`;
+        whereClause += ` AND timestamp >= \$\${paramIndex++}`;
         params.push(startDate);
       }
 
       if (endDate) {
-        whereClause += \` AND timestamp <= \$\${paramIndex++}\`;
+        whereClause += ` AND timestamp <= \$\${paramIndex++}`;
         params.push(endDate);
       }
 
       const result = await query(
-        \`SELECT 
+        `SELECT 
            campaign_id,
            SUM(total_sent) as total_sent,
            SUM(total_opened) as total_opened,
@@ -48,7 +48,7 @@ class CampaignPerformanceAnalyzer {
            AVG(total_clicked * 100.0 / NULLIF(total_sent, 0)) as avg_click_rate,
            AVG(total_bounced * 100.0 / NULLIF(total_sent, 0)) as avg_bounce_rate,
            COUNT(DISTINCT variant_id) as total_variants
-       FROM newsletter_campaigns \${whereClause}\`,
+       FROM newsletter_campaigns \${whereClause}`,
         params
       );
 
