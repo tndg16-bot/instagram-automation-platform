@@ -14,8 +14,8 @@ env:
   ECS_SERVICE: instaflow-backend
 
 jobs:
-  # Test job
-  test:
+  # Backend Test job
+  test-backend:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout code
@@ -34,6 +34,10 @@ jobs:
         working-directory: ./backend
         run: npm run lint
 
+      - name: TypeScript compilation check
+        working-directory: ./backend
+        run: npx tsc --noEmit
+
       - name: Run unit tests
         working-directory: ./backend
         run: npm run test:coverage
@@ -44,10 +48,48 @@ jobs:
           files: ./backend/coverage/lcov.info
           flags: backend
 
+  # Frontend Test job
+  test-frontend:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+
+      - name: Install dependencies
+        working-directory: ./frontend
+        run: npm ci
+
+      - name: Run TypeScript check
+        working-directory: ./frontend
+        run: npx tsc --noEmit
+
+      - name: Run linter
+        working-directory: ./frontend
+        run: npm run lint
+
+      - name: Build frontend
+        working-directory: ./frontend
+        run: npm run build
+
+      - name: Run unit tests
+        working-directory: ./frontend
+        run: npm test -- --coverage --passWithNoTests
+
+      - name: Upload coverage
+        uses: codecov/codecov-action@v3
+        with:
+          files: ./frontend/coverage/lcov.info
+          flags: frontend
+
   # Dev deployment (develop only)
   deploy-dev:
     if: github.ref == 'refs/heads/develop' && github.event_name == 'push'
-    needs: test
+    needs: [test-backend, test-frontend]
     runs-on: ubuntu-latest
     steps:
       - name: Checkout code
@@ -84,7 +126,7 @@ jobs:
   # Production deployment (manual trigger)
   deploy-prod:
     if: github.event_name == 'workflow_dispatch'
-    needs: test
+    needs: [test-backend, test-frontend]
     runs-on: ubuntu-latest
     environment: production
     steps:
